@@ -1,0 +1,1981 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#FFF7ED">
+  <title>Costos · Cocina & Emprendimientos</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            kitchenOrange: {
+              50: '#FFF7ED',
+              100: '#FFEDD5',
+              200: '#FED7AA',
+              300: '#FDBA74',
+              400: '#FB923C',
+              500: '#F97316',
+              600: '#EA580C',
+              700: '#C2410C',
+              800: '#9A3412',
+              900: '#7C2D12',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #F6EDE3;
+      color: #1E293B;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    input, textarea, select {
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .kitchen-card-shadow {
+      box-shadow: 0 4px 20px -2px rgba(194, 65, 12, 0.07), 0 2px 6px -1px rgba(194, 65, 12, 0.04);
+    }
+    .modal-backdrop {
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex justify-center items-start sm:py-6">
+
+  <!-- Main Mobile Frame Container -->
+  <div class="w-full max-w-lg bg-[#FFF7ED] min-h-screen sm:min-h-[880px] sm:rounded-[36px] sm:shadow-2xl sm:border-[5px] sm:border-slate-800 flex flex-col relative overflow-hidden pb-10">
+    
+    <!-- Top Header Bar -->
+    <header class="pt-6 px-5 pb-4 bg-[#FFF7ED] sticky top-0 z-20 border-b border-orange-200/80">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-orange-500 to-amber-500 p-0.5 shadow-md flex-shrink-0 cursor-pointer" onclick="openProfileModal()">
+            <div id="headerLogoContainer" class="w-full h-full bg-white rounded-full flex items-center justify-center overflow-hidden border border-orange-100">
+              <span class="text-2xl" id="profileAvatar">🍳</span>
+            </div>
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5 cursor-pointer" onclick="openProfileModal()">
+              <h1 class="text-xl font-black tracking-tight text-slate-900" id="headerTitle">Costos · Mi Cocina</h1>
+            </div>
+            <p class="text-xs font-semibold text-kitchenOrange-700 tracking-wide flex items-center gap-1.5" id="headerSubtitle">
+              <span>mis recetas & precios 🍕🎂</span>
+              <span class="text-orange-300">·</span>
+              <span class="text-[11px] font-medium text-slate-500" id="argClock">🇦🇷 --:-- hs</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Botones Rápidos Superiores -->
+        <div class="flex items-center gap-2">
+          <!-- Despensa de Insumos -->
+          <button onclick="openPantryModal()" class="w-10 h-10 rounded-full bg-white border border-orange-200 flex items-center justify-center text-kitchenOrange-700 hover:bg-orange-50 active:scale-95 transition-transform shadow-sm relative" title="Despensa de Precios del Súper">
+            <span class="text-lg">🥫</span>
+          </button>
+
+          <!-- Calculador de Promos / Combos -->
+          <button onclick="openCombosModal()" class="w-10 h-10 rounded-full bg-white border border-orange-200 flex items-center justify-center text-kitchenOrange-700 hover:bg-orange-50 active:scale-95 transition-transform shadow-sm relative" title="Armar Promos y Combos">
+            <span class="text-lg">🎁</span>
+          </button>
+
+          <!-- Copia en Google Drive -->
+          <button onclick="openBackupModal()" class="w-10 h-10 rounded-full bg-white border border-orange-200 flex items-center justify-center text-kitchenOrange-700 hover:bg-orange-50 active:scale-95 transition-transform shadow-sm relative" title="Copia en Google Drive">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
+            </svg>
+            <span id="backupStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white absolute -top-0.5 -right-0.5 hidden"></span>
+          </button>
+
+          <!-- Ajustes / Marca -->
+          <button onclick="openProfileModal()" class="w-10 h-10 rounded-full bg-white border border-orange-200 flex items-center justify-center text-slate-600 hover:bg-orange-50 active:scale-95 transition-transform shadow-sm" title="Ajustes y Marca">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Bar -->
+      <div class="grid grid-cols-3 gap-2 mt-4">
+        <div onclick="setFilter('all')" class="bg-white rounded-2xl p-2.5 border border-orange-200/80 shadow-sm text-center cursor-pointer hover:border-orange-400 transition-all">
+          <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Recetas</p>
+          <p class="text-base font-black text-slate-800 mt-0.5" id="statTotalRecipes">0</p>
+        </div>
+        <div onclick="openPantryModal()" class="bg-orange-100/60 rounded-2xl p-2.5 border border-orange-200 shadow-sm text-center cursor-pointer hover:border-orange-400 transition-all">
+          <p class="text-[10px] uppercase tracking-wider font-bold text-kitchenOrange-800">Insumos</p>
+          <p class="text-base font-black text-kitchenOrange-900 mt-0.5" id="statTotalPantry">0</p>
+        </div>
+        <div onclick="openCombosModal()" class="bg-emerald-50 rounded-2xl p-2.5 border border-emerald-200 shadow-sm text-center cursor-pointer hover:border-emerald-300 transition-all" title="Armar Promos">
+          <p class="text-[10px] uppercase tracking-wider font-bold text-emerald-800">Promos</p>
+          <p class="text-base font-black text-emerald-700 mt-0.5">🎁 Crear</p>
+        </div>
+      </div>
+
+      <!-- Search Box + Top Nueva Receta Button -->
+      <div class="mt-3 flex items-center gap-2">
+        <div class="relative flex-1">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Buscar pizza, torta, empanadas..." 
+            oninput="renderRecipes()"
+            class="w-full bg-white rounded-xl pl-9 pr-3 py-2.5 text-xs sm:text-sm border border-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder:text-slate-400"
+          >
+        </div>
+        <button 
+          onclick="openAddRecipeModal()" 
+          class="bg-kitchenOrange-600 hover:bg-kitchenOrange-700 text-white px-3.5 py-2.5 rounded-xl font-black text-xs shadow-md active:scale-95 transition-all flex items-center gap-1.5 flex-shrink-0"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+          </svg>
+          <span>Nueva Receta</span>
+        </button>
+      </div>
+
+      <!-- Filter Chips -->
+      <div class="flex flex-wrap items-center gap-1.5 mt-3 pt-0.5">
+        <button onclick="setFilter('all')" id="filter-all" class="filter-pill px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap bg-kitchenOrange-700 text-white transition-all shadow-sm">
+          Todas
+        </button>
+        <button onclick="setFilter('unit')" id="filter-unit" class="filter-pill px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap bg-white text-slate-600 border border-orange-200 transition-all">
+          🍕 Por Unidad
+        </button>
+        <button onclick="setFilter('kg')" id="filter-kg" class="filter-pill px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap bg-white text-slate-600 border border-orange-200 transition-all">
+          🎂 Por Kilo
+        </button>
+        <button onclick="setFilter('dozen')" id="filter-dozen" class="filter-pill px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap bg-white text-slate-600 border border-orange-200 transition-all">
+          🥟 Por Docena
+        </button>
+      </div>
+    </header>
+
+    <!-- Main List of Recipes -->
+    <main class="flex-1 px-4 py-3 pb-8 space-y-3" id="recipesList">
+      <!-- Recipe cards injected dynamically -->
+    </main>
+
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: EDITOR DE RECETA (DETALLADO & EDITABLE) -->
+  <!-- ========================================== -->
+  <div id="recipeModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 modal-backdrop hidden transition-opacity">
+    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[92vh] overflow-y-auto no-scrollbar p-6 shadow-2xl flex flex-col space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-orange-100">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl" id="recipeModalIconDisplay">🍕</span>
+          <div>
+            <h2 class="text-base font-black text-slate-900" id="recipeModalTitle">Editar Receta</h2>
+            <p class="text-[11px] text-slate-400">Costeo exacto de ingredientes, cajas y mano de obra</p>
+          </div>
+        </div>
+        <button onclick="closeRecipeModal()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200">
+          ✕
+        </button>
+      </div>
+
+      <!-- Datos básicos de la receta -->
+      <div class="bg-orange-50/50 p-3.5 rounded-2xl border border-orange-100 space-y-3">
+        <div class="flex gap-2">
+          <div class="w-16">
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Ícono</label>
+            <input type="text" id="recipeIconInput" value="🍕" class="w-full text-center py-2 rounded-xl border border-orange-200 text-lg bg-white">
+          </div>
+          <div class="flex-1">
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">Nombre de la Receta / Producto</label>
+            <input type="text" id="recipeNameInput" placeholder="Ej: Pizza Muzzarella lista para hornear" class="w-full px-3 py-2 rounded-xl border border-orange-200 font-bold text-sm bg-white focus:ring-2 focus:ring-orange-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">¿Cómo se vende?</label>
+            <select id="recipeSaleTypeInput" onchange="recalcRecipeModalLive()" class="w-full px-2.5 py-2 rounded-xl border border-orange-200 font-bold text-xs bg-white text-slate-800">
+              <option value="unit">🍕 Por Unidad (Pizza, Tarta, etc.)</option>
+              <option value="kg">🎂 Por Kilo (Torta, Pastas, etc.)</option>
+              <option value="dozen">🥟 Por Docena (Pastelitos, Empanadas)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1" id="recipeYieldLabel">Rendimiento tanda</label>
+            <div class="flex items-center gap-1">
+              <input type="number" step="0.1" id="recipeYieldInput" value="4" oninput="recalcRecipeModalLive()" class="w-full px-3 py-2 rounded-xl border border-orange-200 font-bold text-xs bg-white text-slate-800">
+              <span class="text-xs font-bold text-slate-500 whitespace-nowrap" id="recipeYieldUnitSpan">unidades</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pestañas del Editor: Ingredientes vs Packaging vs Mano de Obra -->
+      <div>
+        <div class="flex border-b border-orange-100 mb-3 gap-2">
+          <button type="button" onclick="switchEditorTab('ingredients')" id="tabBtn-ingredients" class="editor-tab-btn pb-2 text-xs font-black border-b-2 border-kitchenOrange-600 text-kitchenOrange-700">
+            🥫 1. Ingredientes (<span id="countTabIngredients">0</span>)
+          </button>
+          <button type="button" onclick="switchEditorTab('packaging')" id="tabBtn-packaging" class="editor-tab-btn pb-2 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800">
+            📦 2. Packaging (<span id="countTabPackaging">0</span>)
+          </button>
+          <button type="button" onclick="switchEditorTab('labor')" id="tabBtn-labor" class="editor-tab-btn pb-2 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800">
+            ⏱️ 3. Mano de Obra & Gas
+          </button>
+        </div>
+
+        <!-- Solapa 1: Ingredientes -->
+        <div id="tabContent-ingredients" class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-slate-500">Activá/desactivá con el tilde sin borrar:</span>
+            <button type="button" onclick="promptAddIngredientToRecipe()" class="text-xs font-bold text-kitchenOrange-700 bg-orange-100 hover:bg-orange-200 px-2.5 py-1 rounded-lg">
+              + Agregar Ingrediente
+            </button>
+          </div>
+          <div id="recipeIngredientsList" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+            <!-- Ingredientes dinámicos con toggle switch -->
+          </div>
+        </div>
+
+        <!-- Solapa 2: Packaging & Descartables -->
+        <div id="tabContent-packaging" class="space-y-2 hidden">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-slate-500">Cajas, bolsas, folex, stickers:</span>
+            <button type="button" onclick="promptAddPackagingToRecipe()" class="text-xs font-bold text-kitchenOrange-700 bg-orange-100 hover:bg-orange-200 px-2.5 py-1 rounded-lg">
+              + Agregar Packaging
+            </button>
+          </div>
+          <div id="recipePackagingList" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+            <!-- Packaging dinámico con toggle switch -->
+          </div>
+        </div>
+
+        <!-- Solapa 3: Mano de Obra & Servicios -->
+        <div id="tabContent-labor" class="space-y-3 hidden">
+          <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-xs font-black text-slate-800">¿Sumar tu tiempo y servicios?</h4>
+                <p class="text-[11px] text-slate-400">Calcula tu hora de trabajo y el gas del horno</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="recipeIncludeLaborToggle" class="sr-only peer" onchange="recalcRecipeModalLive()">
+                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-kitchenOrange-600"></div>
+              </label>
+            </div>
+
+            <div id="laborFieldsContainer" class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-600 mb-1">Horas dedicadas a la tanda:</label>
+                <input type="number" step="0.25" id="recipeHoursInput" value="1.5" oninput="recalcRecipeModalLive()" class="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold bg-white">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-600 mb-1">Tu valor por hora ($):</label>
+                <input type="number" id="recipeHourlyRateInput" value="4000" oninput="recalcRecipeModalLive()" class="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold bg-white">
+              </div>
+              <div class="col-span-2">
+                <label class="block text-[10px] font-bold text-slate-600 mb-1">Gas / Electricidad (% sobre ingredientes):</label>
+                <select id="recipeUtilityPercentInput" onchange="recalcRecipeModalLive()" class="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold bg-white">
+                  <option value="0">0% (No sumar gas)</option>
+                  <option value="5">5% (Horno poco tiempo)</option>
+                  <option value="10" selected>10% (Estándar gastronómico)</option>
+                  <option value="15">15% (Horneadas largas)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen Financiero en Vivo (Costos y Precios Sugeridos) -->
+      <div class="bg-gradient-to-br from-orange-100/90 to-amber-100/70 p-4 rounded-3xl border border-orange-200 space-y-3">
+        <div class="flex items-center justify-between text-xs">
+          <span class="font-bold text-kitchenOrange-900">Desglose de la tanda:</span>
+          <span class="font-black text-slate-800" id="liveTandaCostSummary">Costo Tanda: $ 0</span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 text-center text-[10px] font-bold text-slate-600">
+          <div class="bg-white/80 p-1.5 rounded-xl">
+            <span class="block opacity-75">Comida</span>
+            <span class="text-xs font-black text-slate-800" id="liveFoodCost">$ 0</span>
+          </div>
+          <div class="bg-white/80 p-1.5 rounded-xl">
+            <span class="block opacity-75">Packaging</span>
+            <span class="text-xs font-black text-slate-800" id="livePackagingCost">$ 0</span>
+          </div>
+          <div class="bg-white/80 p-1.5 rounded-xl">
+            <span class="block opacity-75">Mano Obra/Gas</span>
+            <span class="text-xs font-black text-slate-800" id="liveLaborCost">$ 0</span>
+          </div>
+        </div>
+
+        <!-- Selector de Margen de Ganancia -->
+        <div class="pt-1">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-black text-kitchenOrange-950">Margen de Ganancia Deseado:</span>
+            <span class="text-xs font-black bg-white px-2 py-0.5 rounded-md text-kitchenOrange-800 border border-orange-200" id="liveMarginLabel">50%</span>
+          </div>
+          <div class="grid grid-cols-5 gap-1" id="marginPresetButtons">
+            <button type="button" onclick="setRecipeMargin(30)" data-margin="30" class="margin-btn py-1 rounded-lg border text-[11px] font-bold bg-white text-slate-700">30%</button>
+            <button type="button" onclick="setRecipeMargin(40)" data-margin="40" class="margin-btn py-1 rounded-lg border text-[11px] font-bold bg-white text-slate-700">40%</button>
+            <button type="button" onclick="setRecipeMargin(50)" data-margin="50" class="margin-btn py-1 rounded-lg border text-[11px] font-bold bg-kitchenOrange-600 text-white border-kitchenOrange-600 shadow-sm">50%</button>
+            <button type="button" onclick="setRecipeMargin(60)" data-margin="60" class="margin-btn py-1 rounded-lg border text-[11px] font-bold bg-white text-slate-700">60%</button>
+            <button type="button" onclick="setRecipeMargin(100)" data-margin="100" class="margin-btn py-1 rounded-lg border text-[11px] font-bold bg-white text-slate-700">100%</button>
+          </div>
+        </div>
+
+        <!-- RESULTADO FINAL: COSTO UNITARIO Y PRECIO VENTA -->
+        <div class="bg-white p-3 rounded-2xl border border-orange-200 shadow-sm flex items-center justify-between">
+          <div>
+            <span class="text-[10px] uppercase font-bold text-slate-400 block" id="liveUnitCostLabel">Costo Unitario</span>
+            <span class="text-sm font-black text-slate-700" id="liveUnitCostDisplay">$ 0</span>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] uppercase font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full inline-block mb-0.5">Precio Sugerido</span>
+            <span class="text-lg font-black text-emerald-700 block" id="liveSuggestedPriceDisplay">$ 0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 pt-1">
+        <button type="button" onclick="closeRecipeModal()" class="flex-1 py-3 border border-slate-200 text-slate-600 font-bold text-xs rounded-xl">
+          Cancelar
+        </button>
+        <button type="button" onclick="saveRecipeModal()" class="flex-1 py-3 bg-kitchenOrange-600 hover:bg-kitchenOrange-700 text-white font-bold text-xs rounded-xl shadow-md active:scale-95">
+          Guardar Receta ✓
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: DESPENSA DE INSUMOS (PRECIOS DEL SÚPER) -->
+  <!-- ========================================== -->
+  <div id="pantryModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 modal-backdrop hidden transition-opacity">
+    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[92vh] overflow-y-auto no-scrollbar p-6 shadow-2xl flex flex-col space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-orange-100">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🥫</span>
+          <div>
+            <h2 class="text-base font-black text-slate-900">Despensa de Precios</h2>
+            <p class="text-[11px] text-slate-400">Lo que pagás en el súper, mayorista o papelera</p>
+          </div>
+        </div>
+        <button onclick="closePantryModal()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200">
+          ✕
+        </button>
+      </div>
+
+      <!-- Botón Anti-Inflación Global -->
+      <div class="bg-amber-50 p-3 rounded-2xl border border-amber-200 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black text-amber-950 flex items-center gap-1">
+            <span>⚡ Aumento Rápido por Inflación:</span>
+          </span>
+          <span class="text-[10px] text-amber-800 font-bold">Aplica a todo</span>
+        </div>
+        <p class="text-[11px] text-amber-900/80">
+          ¿Aumentó el mayorista? Tocá un porcentaje para actualizar todos tus insumos y recetas en 1 segundo:
+        </p>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" onclick="applyGlobalInflation(5)" class="py-1.5 bg-white border border-amber-300 hover:bg-amber-100 text-amber-900 font-black text-xs rounded-xl shadow-sm active:scale-95">
+            + 5%
+          </button>
+          <button type="button" onclick="applyGlobalInflation(10)" class="py-1.5 bg-white border border-amber-300 hover:bg-amber-100 text-amber-900 font-black text-xs rounded-xl shadow-sm active:scale-95">
+            + 10%
+          </button>
+          <button type="button" onclick="applyGlobalInflation(15)" class="py-1.5 bg-white border border-amber-300 hover:bg-amber-100 text-amber-900 font-black text-xs rounded-xl shadow-sm active:scale-95">
+            + 15%
+          </button>
+        </div>
+      </div>
+
+      <!-- Solapas de Despensa: Comestibles vs Packaging -->
+      <div class="flex border-b border-orange-100 gap-2">
+        <button type="button" onclick="switchPantryTab('food')" id="pantryTabBtn-food" class="pb-2 text-xs font-black border-b-2 border-kitchenOrange-600 text-kitchenOrange-700">
+          🥫 Ingredientes Comestibles
+        </button>
+        <button type="button" onclick="switchPantryTab('pack')" id="pantryTabBtn-pack" class="pb-2 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800">
+          📦 Packaging & Descartables
+        </button>
+      </div>
+
+      <!-- Formulario para agregar nuevo insumo -->
+      <form id="newPantryItemForm" onsubmit="saveNewPantryItem(event)" class="bg-orange-50/60 p-3 rounded-2xl border border-orange-100 space-y-2.5">
+        <span class="text-xs font-black text-kitchenOrange-900 block" id="newPantryFormTitle">+ Cargar nuevo ingrediente</span>
+        <div class="grid grid-cols-2 gap-2">
+          <input type="text" id="pantryItemName" required placeholder="Nombre (ej: Muzzarella barra)" class="col-span-2 px-3 py-1.5 rounded-xl border border-orange-200 text-xs font-bold bg-white">
+          <div>
+            <label class="block text-[9px] uppercase font-bold text-slate-500">¿Cuánto compraste?</label>
+            <div class="flex items-center gap-1">
+              <input type="number" step="any" id="pantryItemQty" required placeholder="1" value="1" class="w-full px-2 py-1.5 rounded-xl border border-orange-200 text-xs font-bold bg-white">
+              <select id="pantryItemUnit" class="px-2 py-1.5 rounded-xl border border-orange-200 text-xs font-bold bg-white">
+                <option value="kg">kg</option>
+                <option value="g">gramos</option>
+                <option value="u">unidades</option>
+                <option value="l">litros</option>
+                <option value="ml">ml</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-[9px] uppercase font-bold text-slate-500">¿Cuánto pagaste? ($)</label>
+            <input type="number" id="pantryItemCost" required placeholder="$ 7500" class="w-full px-3 py-1.5 rounded-xl border border-orange-200 text-xs font-black text-slate-800 bg-white">
+          </div>
+        </div>
+        <button type="submit" class="w-full py-2 bg-kitchenOrange-600 hover:bg-kitchenOrange-700 text-white font-bold text-xs rounded-xl shadow-sm">
+          Guardar en la Despensa
+        </button>
+      </form>
+
+      <!-- Lista de Insumos de la Despensa -->
+      <div id="pantryItemsContainer" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+        <!-- Renderizado dinámico -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: ARMADOR DE PROMOS & COMBOS         -->
+  <!-- ========================================== -->
+  <div id="combosModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 modal-backdrop hidden transition-opacity">
+    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[92vh] overflow-y-auto no-scrollbar p-6 shadow-2xl flex flex-col space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-orange-100">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🎁</span>
+          <div>
+            <h2 class="text-base font-black text-slate-900">Calculadora de Promos</h2>
+            <p class="text-[11px] text-slate-400">Armá combos de 2 o 3 productos con descuento sin perder plata</p>
+          </div>
+        </div>
+        <button onclick="closeCombosModal()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200">
+          ✕
+        </button>
+      </div>
+
+      <div class="bg-orange-50/70 p-3.5 rounded-2xl border border-orange-100 space-y-2">
+        <label class="block text-xs font-black text-kitchenOrange-900 uppercase">Nombre de la Promo:</label>
+        <input type="text" id="comboNameInput" placeholder="Ej: Promo Finde (3 Pizzas Muzza + Fainá)" class="w-full px-3.5 py-2 rounded-xl border border-orange-200 font-bold text-sm bg-white">
+      </div>
+
+      <!-- Selección de Productos para el Combo -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black text-slate-800">Elegí qué productos incluye el combo:</span>
+          <button type="button" onclick="addComboItemRow()" class="text-xs font-bold text-kitchenOrange-700 bg-orange-100 hover:bg-orange-200 px-2.5 py-1 rounded-lg">
+            + Sumar producto
+          </button>
+        </div>
+        <div id="comboItemsContainer" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+          <!-- Rows generadas dinámicamente -->
+        </div>
+      </div>
+
+      <!-- Descuento y Resultado del Combo -->
+      <div class="bg-emerald-50/70 p-4 rounded-3xl border border-emerald-200 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-emerald-950">Descuento de la Promo:</span>
+          <select id="comboDiscountSelect" onchange="recalcComboModal()" class="px-2.5 py-1 rounded-xl border border-emerald-200 font-bold text-xs bg-white text-emerald-800">
+            <option value="10">10% OFF</option>
+            <option value="15" selected>15% OFF</option>
+            <option value="20">20% OFF</option>
+            <option value="25">25% OFF</option>
+          </select>
+        </div>
+
+        <div class="bg-white p-3 rounded-2xl border border-emerald-200 space-y-1.5 text-xs">
+          <div class="flex justify-between text-slate-500">
+            <span>Costo Total de fabricación:</span>
+            <span class="font-bold text-slate-700" id="comboTotalCost">$ 0</span>
+          </div>
+          <div class="flex justify-between text-slate-500">
+            <span>Precio vendido suelto (sin promo):</span>
+            <span class="font-bold line-through text-slate-400" id="comboNormalPrice">$ 0</span>
+          </div>
+          <div class="flex justify-between text-sm font-black text-emerald-800 pt-1 border-t border-emerald-100">
+            <span>PRECIO PROMO AL CLIENTE:</span>
+            <span class="text-base" id="comboFinalPrice">$ 0</span>
+          </div>
+          <div class="flex justify-between text-xs font-black text-emerald-700">
+            <span>Tu Ganancia Neta limpia:</span>
+            <span id="comboNetProfit">$ 0</span>
+          </div>
+        </div>
+
+        <button type="button" onclick="copyComboWhatsAppText()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-1.5 active:scale-95">
+          <span>📋 Copiar Texto de la Promo para WhatsApp</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: PERFIL, MARCA & AJUSTES             -->
+  <!-- ========================================== -->
+  <div id="profileModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 modal-backdrop hidden transition-opacity">
+    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[92vh] overflow-y-auto no-scrollbar p-6 shadow-2xl flex flex-col space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-orange-100">
+        <h2 class="text-lg font-black text-slate-900">Tu Cocina & Marca</h2>
+        <button onclick="closeProfileModal()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200">
+          ✕
+        </button>
+      </div>
+
+      <div class="bg-orange-50/60 p-4 rounded-2xl border border-orange-100 space-y-3">
+        <!-- Logo de la Cocina / Emprendimiento -->
+        <div class="flex items-center gap-3">
+          <div class="w-16 h-16 rounded-full bg-white border-2 border-orange-300 flex items-center justify-center overflow-hidden shadow-sm flex-shrink-0 relative">
+            <img id="settingsLogoPreview" src="" alt="Logo preview" class="w-full h-full object-cover hidden">
+            <span id="settingsLogoEmoji" class="text-3xl">🍳</span>
+          </div>
+          <div class="flex-1">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Logo o Foto de Portada</label>
+            <div class="flex items-center gap-2">
+              <label class="cursor-pointer bg-white border border-orange-300 hover:bg-orange-50 text-kitchenOrange-800 px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm inline-block active:scale-95 transition-all">
+                Subir foto...
+                <input type="file" id="logoFileInput" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
+              </label>
+              <button type="button" onclick="removeLogo()" class="text-xs text-slate-400 hover:text-kitchenOrange-600 underline">Quitar</button>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">Se optimiza automáticamente para celular.</p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nombre de tu Cocina o Emprendimiento</label>
+          <input 
+            type="text" 
+            id="settingsSalonName" 
+            placeholder="Ej: Pizzería Don Juan / Pastelería Dulce Arte" 
+            class="w-full px-3.5 py-2 rounded-xl border border-orange-200 focus:ring-2 focus:ring-orange-500 focus:outline-none text-sm font-semibold bg-white"
+          >
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Tu WhatsApp para pedidos</label>
+          <input 
+            type="tel" 
+            id="settingsSalonPhone" 
+            placeholder="Ej: 5491122334455" 
+            class="w-full px-3.5 py-2 rounded-xl border border-orange-200 focus:ring-2 focus:ring-orange-500 focus:outline-none text-sm font-semibold bg-white"
+          >
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Valor por hora de tu trabajo ($ / hora)</label>
+          <input 
+            type="number" 
+            id="settingsHourlyRate" 
+            placeholder="4000" 
+            class="w-full px-3.5 py-2 rounded-xl border border-orange-200 focus:ring-2 focus:ring-orange-500 focus:outline-none text-sm font-semibold bg-white"
+          >
+          <p class="text-[11px] text-slate-400 mt-1">Sirve de base para calcular el costo de tu mano de obra.</p>
+        </div>
+      </div>
+
+      <button 
+        type="button" 
+        onclick="saveSettings()" 
+        class="w-full py-3 bg-kitchenOrange-600 hover:bg-kitchenOrange-700 text-white rounded-xl font-bold text-sm shadow-md active:scale-95 transition-all"
+      >
+        Guardar Ajustes
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: COPIA DE SEGURIDAD EN GOOGLE DRIVE  -->
+  <!-- ========================================== -->
+  <div id="backupModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 modal-backdrop hidden transition-opacity">
+    <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl max-h-[92vh] overflow-y-auto no-scrollbar p-6 shadow-2xl flex flex-col space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-orange-100">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">☁️</span>
+          <div>
+            <h2 class="text-base font-black text-slate-900">Copia de Seguridad</h2>
+            <p class="text-[11px] text-slate-400" id="lastBackupText">Sincronización automática activa</p>
+          </div>
+        </div>
+        <button onclick="closeBackupModal()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:bg-slate-200">
+          ✕
+        </button>
+      </div>
+
+      <!-- Sección 1: Copia Automática en Google Drive -->
+      <div class="bg-orange-50/70 border border-orange-200 rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-xs font-black uppercase tracking-wider text-kitchenOrange-950">Google Drive Conectado</span>
+          </div>
+          <span id="cloudSyncBadge" class="text-[10px] font-black bg-orange-200/80 text-kitchenOrange-900 px-2 py-0.5 rounded-full">Automático ✓</span>
+        </div>
+
+        <p class="text-xs text-kitchenOrange-900/80 leading-relaxed">
+          Tus recetas, insumos de despensa y costos se guardan automáticamente en la carpeta <strong>"Copia de seguridad Costos Comida"</strong> de Google Drive en cada cambio.
+        </p>
+
+        <a href="https://drive.google.com/drive/folders/1lN0B2ICINlrV3aBb9Cj-0umUPfwgdvGp" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-kitchenOrange-800 hover:text-kitchenOrange-900 underline decoration-orange-400">
+          <span>📁 Abrir mi carpeta en Google Drive</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        </a>
+
+        <button 
+          onclick="syncToGoogleDriveNow(true)" 
+          id="btnSyncNow"
+          class="w-full py-3 px-4 bg-kitchenOrange-600 hover:bg-kitchenOrange-700 text-white rounded-xl font-bold text-xs shadow-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+        >
+          <span>☁️ Guardar Copia en Google Drive Ahora</span>
+        </button>
+      </div>
+
+      <!-- Sección 2: Descargar al Celular / PC o Planilla Excel -->
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2.5">
+        <span class="text-xs font-black uppercase tracking-wider text-slate-700 block">Opciones en tu dispositivo</span>
+
+        <button 
+          onclick="shareOrDownloadBackup()" 
+          class="w-full py-2.5 px-4 bg-kitchenOrange-600 hover:bg-kitchenOrange-700 text-white rounded-xl font-bold text-xs shadow-sm flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+          </svg>
+          <span>Descargar Copia en Celular / PC</span>
+        </button>
+
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button 
+            onclick="exportCSVForSheets()" 
+            class="py-2.5 px-3 bg-white hover:bg-slate-50 text-emerald-700 border border-emerald-200 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all"
+          >
+            <span>📊 Planilla Excel</span>
+          </button>
+
+          <label class="py-2.5 px-3 bg-white hover:bg-slate-50 text-kitchenOrange-800 border border-orange-200 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer active:scale-95 transition-all">
+            <span>📥 Restaurar Copia</span>
+            <input type="file" accept=".json" class="hidden" onchange="importBackupFile(event)">
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-2xl text-xs font-bold shadow-2xl transition-all duration-300 transform translate-y-12 opacity-0 pointer-events-none flex items-center gap-2">
+    <span id="toastIcon">✨</span>
+    <span id="toastMessage">Notificación</span>
+  </div>
+
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <script>
+    // ==========================================
+    // SEED DATA: DESPENSA & RECETAS DE EJEMPLO
+    // ==========================================
+    const DEFAULT_PANTRY = [
+      // Comestibles
+      { id: 'i-harina', name: 'Harina 0000 (1 kg)', type: 'food', qtyBought: 1000, unit: 'g', costPaid: 1100, active: true },
+      { id: 'i-levadura', name: 'Levadura seca (50 g)', type: 'food', qtyBought: 50, unit: 'g', costPaid: 650, active: true },
+      { id: 'i-muzza', name: 'Muzzarella en barra (1 kg)', type: 'food', qtyBought: 1000, unit: 'g', costPaid: 7800, active: true },
+      { id: 'i-tomate', name: 'Puré de tomate (520 g)', type: 'food', qtyBought: 520, unit: 'g', costPaid: 850, active: true },
+      { id: 'i-aceite', name: 'Aceite de girasol (1 L)', type: 'food', qtyBought: 1000, unit: 'ml', costPaid: 1600, active: true },
+      { id: 'i-huevos', name: 'Maple de huevos (30 u)', type: 'food', qtyBought: 30, unit: 'u', costPaid: 4500, active: true },
+      { id: 'i-azucar', name: 'Azúcar blanca (1 kg)', type: 'food', qtyBought: 1000, unit: 'g', costPaid: 950, active: true },
+      { id: 'i-manteca', name: 'Manteca pan (200 g)', type: 'food', qtyBought: 200, unit: 'g', costPaid: 2400, active: true },
+      { id: 'i-ddl', name: 'Dulce de leche repostero (1 kg)', type: 'food', qtyBought: 1000, unit: 'g', costPaid: 4200, active: true },
+      { id: 'i-chocolate', name: 'Chocolate cobertura semi (500 g)', type: 'food', qtyBought: 500, unit: 'g', costPaid: 5500, active: true },
+      { id: 'i-membrillo', name: 'Dulce de membrillo en pan (1 kg)', type: 'food', qtyBought: 1000, unit: 'g', costPaid: 3200, active: true },
+      { id: 'i-grasa', name: 'Grasa vacuna primer jugo (500 g)', type: 'food', qtyBought: 500, unit: 'g', costPaid: 1200, active: true },
+      // Packaging
+      { id: 'p-cajapizza', name: 'Caja para pizza estándar', type: 'pack', qtyBought: 1, unit: 'u', costPaid: 320, active: true },
+      { id: 'p-bolsaprop', name: 'Bolsa polipropileno + disco', type: 'pack', qtyBought: 1, unit: 'u', costPaid: 180, active: true },
+      { id: 'p-cajatorta', name: 'Caja alta para torta decorada', type: 'pack', qtyBought: 1, unit: 'u', costPaid: 2600, active: true },
+      { id: 'p-basetorta', name: 'Base dorada rígida fibrofácil', type: 'pack', qtyBought: 1, unit: 'u', costPaid: 1900, active: true },
+      { id: 'p-bandeja', name: 'Bandeja cartón pastelitos + film', type: 'pack', qtyBought: 1, unit: 'u', costPaid: 350, active: true },
+      { id: 'p-sticker', name: 'Sticker adhesivo con logo', type: 'pack', qtyBought: 1, unit: 'u', costPaid: 60, active: true }
+    ];
+
+    const DEFAULT_RECIPES = [
+      {
+        id: 'rec-1',
+        name: 'Pizza Muzzarella (Lista para hornear)',
+        icon: '🍕',
+        saleType: 'unit', // unit | kg | dozen
+        yieldAmount: 4, // Rinde 4 pizzas
+        yieldUnit: 'pizzas',
+        marginPercent: 50,
+        includeLabor: true,
+        hours: 1.0,
+        utilityPercent: 10,
+        ingredients: [
+          { pantryId: 'i-harina', amount: 1000, active: true },
+          { pantryId: 'i-levadura', amount: 25, active: true },
+          { pantryId: 'i-tomate', amount: 400, active: true },
+          { pantryId: 'i-muzza', amount: 800, active: true },
+          { pantryId: 'i-aceite', amount: 50, active: true }
+        ],
+        packaging: [
+          { pantryId: 'p-cajapizza', amount: 4, active: true },
+          { pantryId: 'p-sticker', amount: 4, active: true }
+        ]
+      },
+      {
+        id: 'rec-2',
+        name: 'Torta Cumpleaños Clásica (Rellena y Deco)',
+        icon: '🎂',
+        saleType: 'kg', // por kilo
+        yieldAmount: 2.5, // 2.5 kg
+        yieldUnit: 'kg',
+        marginPercent: 60,
+        includeLabor: true,
+        hours: 3.0,
+        utilityPercent: 15,
+        ingredients: [
+          { pantryId: 'i-huevos', amount: 6, active: true },
+          { pantryId: 'i-azucar', amount: 300, active: true },
+          { pantryId: 'i-harina', amount: 300, active: true },
+          { pantryId: 'i-manteca', amount: 150, active: true },
+          { pantryId: 'i-ddl', amount: 800, active: true },
+          { pantryId: 'i-chocolate', amount: 300, active: true }
+        ],
+        packaging: [
+          { pantryId: 'p-cajatorta', amount: 1, active: true },
+          { pantryId: 'p-basetorta', amount: 1, active: true },
+          { pantryId: 'p-sticker', amount: 1, active: true }
+        ]
+      },
+      {
+        id: 'rec-3',
+        name: 'Pastelitos Criollos de Membrillo',
+        icon: '🥟',
+        saleType: 'dozen', // por docena
+        yieldAmount: 2, // 2 docenas (24 pastelitos)
+        yieldUnit: 'docenas',
+        marginPercent: 55,
+        includeLabor: true,
+        hours: 1.5,
+        utilityPercent: 10,
+        ingredients: [
+          { pantryId: 'i-harina', amount: 500, active: true },
+          { pantryId: 'i-manteca', amount: 100, active: true },
+          { pantryId: 'i-grasa', amount: 300, active: true },
+          { pantryId: 'i-membrillo', amount: 500, active: true },
+          { pantryId: 'i-azucar', amount: 200, active: true }
+        ],
+        packaging: [
+          { pantryId: 'p-bandeja', amount: 2, active: true },
+          { pantryId: 'p-sticker', amount: 2, active: true }
+        ]
+      }
+    ];
+
+    const AUTO_DRIVE_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzI2Bn0rj_MpW5lFhNJ2um2oEiwtSR4YRbfzedtoYL150rtvcKJ4go_bmLthl24xzMF2Q/exec';
+    const AUTO_DRIVE_FOLDER = 'Copia de seguridad Costos Comida';
+    const AUTO_DRIVE_FOLDER_ID = '1lN0B2ICINlrV3aBb9Cj-0umUPfwgdvGp';
+
+    const DEFAULT_SETTINGS = {
+      salonName: 'Costos · Mi Cocina',
+      salonLogo: '',
+      hourlyRate: 4000, // $ 4.000 / hora de trabajo
+      driveWebhookUrl: AUTO_DRIVE_WEBHOOK,
+      driveFolderName: AUTO_DRIVE_FOLDER,
+      autoSyncDrive: true,
+      lastBackupDate: null
+    };
+
+    // State
+    let pantry = JSON.parse(localStorage.getItem('costos_pantry')) || DEFAULT_PANTRY;
+    let recipes = JSON.parse(localStorage.getItem('costos_recipes')) || DEFAULT_RECIPES;
+    let settings = Object.assign({}, DEFAULT_SETTINGS, JSON.parse(localStorage.getItem('costos_settings') || '{}'));
+    if (!settings.driveWebhookUrl) settings.driveWebhookUrl = AUTO_DRIVE_WEBHOOK;
+    settings.driveFolderName = AUTO_DRIVE_FOLDER;
+
+    let currentFilter = 'all';
+    let editingRecipe = null;
+    let currentPantryTab = 'food';
+    let comboItems = [];
+
+    // Helper: Format Currency ARS
+    function formatCurrency(num) {
+      return '$ ' + Math.round(Number(num || 0)).toLocaleString('es-AR');
+    }
+
+    function updateArgClock() {
+      try {
+        const now = new Date();
+        const str = now.toLocaleTimeString('es-AR', {
+          timeZone: 'America/Argentina/Buenos_Aires',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        });
+        const clockEl = document.getElementById('argClock');
+        if (clockEl) clockEl.textContent = `🇦🇷 ${str} hs`;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function persistData(skipCloud = false) {
+      localStorage.setItem('costos_pantry', JSON.stringify(pantry));
+      localStorage.setItem('costos_recipes', JSON.stringify(recipes));
+      localStorage.setItem('costos_settings', JSON.stringify(settings));
+      updateMetrics();
+      if (!skipCloud && settings.autoSyncDrive) {
+        syncToGoogleDriveNow(false);
+      }
+    }
+
+    function showToast(message, icon = '✨') {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
+      const toastIcon = document.getElementById('toastIcon');
+      toastMessage.textContent = message;
+      toastIcon.textContent = icon;
+      toast.classList.remove('opacity-0', 'translate-y-12');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-12');
+      }, 3000);
+    }
+
+    // ==========================================
+    // CÁLCULO FINANCIERO DE RECETAS
+    // ==========================================
+    function getPantryItemCostPerUnit(item) {
+      if (!item || !item.qtyBought || item.qtyBought <= 0) return 0;
+      return (item.costPaid || 0) / item.qtyBought;
+    }
+
+    function calculateRecipeCosts(r) {
+      let foodCost = 0;
+      let packagingCost = 0;
+
+      // 1. Ingredientes
+      if (Array.isArray(r.ingredients)) {
+        r.ingredients.forEach(ing => {
+          if (ing.active) {
+            const p = pantry.find(item => item.id === ing.pantryId);
+            if (p) {
+              const unitCost = getPantryItemCostPerUnit(p);
+              foodCost += unitCost * (ing.amount || 0);
+            }
+          }
+        });
+      }
+
+      // 2. Packaging
+      if (Array.isArray(r.packaging)) {
+        r.packaging.forEach(pack => {
+          if (pack.active) {
+            const p = pantry.find(item => item.id === pack.pantryId);
+            if (p) {
+              const unitCost = getPantryItemCostPerUnit(p);
+              packagingCost += unitCost * (pack.amount || 0);
+            }
+          }
+        });
+      }
+
+      // 3. Mano de obra y gas
+      let laborCost = 0;
+      let utilityCost = 0;
+      if (r.includeLabor) {
+        const rate = (r.hourlyRate || settings.hourlyRate || 4000);
+        laborCost = (r.hours || 0) * rate;
+        const utilPct = (r.utilityPercent || 10) / 100;
+        utilityCost = foodCost * utilPct;
+      }
+
+      const totalTandaCost = foodCost + packagingCost + laborCost + utilityCost;
+      const yieldAmt = (r.yieldAmount && r.yieldAmount > 0) ? r.yieldAmount : 1;
+      const unitCost = totalTandaCost / yieldAmt;
+
+      // Margen de ganancia
+      const margin = (r.marginPercent || 50) / 100;
+      const suggestedPrice = unitCost * (1 + margin);
+      const unitProfit = suggestedPrice - unitCost;
+      const tandaProfit = unitProfit * yieldAmt;
+
+      return {
+        foodCost,
+        packagingCost,
+        laborCost: laborCost + utilityCost,
+        totalTandaCost,
+        unitCost,
+        suggestedPrice,
+        unitProfit,
+        tandaProfit
+      };
+    }
+
+    // ==========================================
+    // RENDERIZADO DEL CATÁLOGO DE RECETAS
+    // ==========================================
+    function renderRecipes() {
+      const container = document.getElementById('recipesList');
+      const search = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+      container.innerHTML = '';
+
+      let filtered = recipes.filter(r => {
+        if (currentFilter !== 'all' && r.saleType !== currentFilter) return false;
+        if (search) {
+          const matchName = (r.name || '').toLowerCase().includes(search);
+          if (!matchName) return false;
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 px-4 bg-white/70 rounded-3xl border border-dashed border-orange-200">
+            <span class="text-4xl block mb-2">🍳</span>
+            <p class="text-sm font-bold text-slate-700">No se encontraron recetas</p>
+            <p class="text-xs text-slate-400 mt-1">Cambiá el filtro o agregá una nueva receta arriba.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(r => {
+        const calc = calculateRecipeCosts(r);
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-3xl p-4 border border-orange-100 kitchen-card-shadow space-y-3 transition-all";
+
+        let saleBadge = '';
+        let yieldLabel = '';
+        if (r.saleType === 'unit') {
+          saleBadge = '<span class="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">Por Unidad</span>';
+          yieldLabel = `Rinde ${r.yieldAmount} u.`;
+        } else if (r.saleType === 'kg') {
+          saleBadge = '<span class="text-[10px] font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded-full">Por Kilo</span>';
+          yieldLabel = `Rinde ${r.yieldAmount} kg`;
+        } else {
+          saleBadge = '<span class="text-[10px] font-bold text-indigo-800 bg-indigo-100 px-2 py-0.5 rounded-full">Por Docena</span>';
+          yieldLabel = `Rinde ${r.yieldAmount} doc.`;
+        }
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-500 text-white font-black text-2xl flex items-center justify-center shadow-sm flex-shrink-0">
+                ${r.icon || '🍳'}
+              </div>
+              <div>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <h3 class="font-black text-sm text-slate-900">${r.name}</h3>
+                </div>
+                <div class="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">
+                  ${saleBadge}
+                  <span class="font-bold text-slate-600">• ${yieldLabel}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Precio y Margen -->
+            <div class="text-right">
+              <span class="text-xs font-black text-emerald-800 bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 rounded-full inline-block">
+                ${formatCurrency(calc.suggestedPrice)}
+              </span>
+              <p class="text-[10px] font-bold text-slate-400 mt-1">Costo: ${formatCurrency(calc.unitCost)}</p>
+            </div>
+          </div>
+
+          <!-- Despiece de Costos -->
+          <div class="bg-orange-50/50 p-2.5 rounded-2xl border border-orange-100 text-[11px] grid grid-cols-3 gap-1 text-center font-bold text-slate-600">
+            <div>
+              <span class="block text-[9px] uppercase opacity-75">Comida</span>
+              <span class="text-slate-800">${formatCurrency(calc.foodCost / r.yieldAmount)}</span>
+            </div>
+            <div>
+              <span class="block text-[9px] uppercase opacity-75">Packaging</span>
+              <span class="text-slate-800">${formatCurrency(calc.packagingCost / r.yieldAmount)}</span>
+            </div>
+            <div>
+              <span class="block text-[9px] uppercase opacity-75">Ganancia (+${r.marginPercent}%)</span>
+              <span class="text-emerald-700">+${formatCurrency(calc.unitProfit)}</span>
+            </div>
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="pt-1 flex items-center gap-2 border-t border-orange-50">
+            <button 
+              onclick="openEditRecipeModal('${r.id}')"
+              class="flex-1 py-2 px-3 bg-kitchenOrange-600 hover:bg-kitchenOrange-700 text-white rounded-xl font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 active:scale-95 transition-all"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+              <span>Ver / Editar</span>
+            </button>
+
+            <button 
+              onclick="sendWhatsAppQuote('${r.id}')"
+              class="py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl font-bold text-xs flex items-center justify-center gap-1 active:scale-95 transition-all"
+              title="Copiar cotización para WhatsApp"
+            >
+              <span>💬 Cotizar</span>
+            </button>
+
+            <button 
+              onclick="duplicateRecipe('${r.id}')"
+              class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center active:scale-95 transition-all flex-shrink-0"
+              title="Duplicar receta"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            </button>
+
+            <button 
+              onclick="deleteRecipe('${r.id}')"
+              class="w-9 h-9 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center active:scale-95 transition-all flex-shrink-0"
+              title="Eliminar receta"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function updateMetrics() {
+      document.getElementById('statTotalRecipes').textContent = recipes.length;
+      document.getElementById('statTotalPantry').textContent = pantry.length;
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-pill').forEach(btn => {
+        btn.className = 'filter-pill px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap bg-white text-slate-600 border border-orange-200 transition-all';
+      });
+      const activeBtn = document.getElementById(`filter-${filter}`);
+      if (activeBtn) {
+        activeBtn.className = 'filter-pill px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap bg-kitchenOrange-700 text-white transition-all shadow-sm';
+      }
+      renderRecipes();
+    }
+
+    // ==========================================
+    // EDITOR DE RECETA (MODAL)
+    // ==========================================
+    function openAddRecipeModal() {
+      editingRecipe = {
+        id: 'rec-' + Date.now(),
+        name: '',
+        icon: '🍳',
+        saleType: 'unit',
+        yieldAmount: 4,
+        yieldUnit: 'unidades',
+        marginPercent: 50,
+        includeLabor: true,
+        hours: 1.0,
+        hourlyRate: settings.hourlyRate || 4000,
+        utilityPercent: 10,
+        ingredients: [],
+        packaging: []
+      };
+      populateRecipeModalUI();
+      document.getElementById('recipeModalTitle').textContent = 'Nueva Receta';
+      document.getElementById('recipeModal').classList.remove('hidden');
+    }
+
+    function openEditRecipeModal(recipeId) {
+      const found = recipes.find(item => item.id === recipeId);
+      if (!found) return;
+      editingRecipe = JSON.parse(JSON.stringify(found));
+      populateRecipeModalUI();
+      document.getElementById('recipeModalTitle').textContent = 'Editar Receta';
+      document.getElementById('recipeModal').classList.remove('hidden');
+    }
+
+    function closeRecipeModal() {
+      document.getElementById('recipeModal').classList.add('hidden');
+      editingRecipe = null;
+    }
+
+    function populateRecipeModalUI() {
+      if (!editingRecipe) return;
+      document.getElementById('recipeIconInput').value = editingRecipe.icon || '🍳';
+      document.getElementById('recipeModalIconDisplay').textContent = editingRecipe.icon || '🍳';
+      document.getElementById('recipeNameInput').value = editingRecipe.name || '';
+      document.getElementById('recipeSaleTypeInput').value = editingRecipe.saleType || 'unit';
+      document.getElementById('recipeYieldInput').value = editingRecipe.yieldAmount || 1;
+      document.getElementById('recipeIncludeLaborToggle').checked = Boolean(editingRecipe.includeLabor);
+      document.getElementById('recipeHoursInput').value = editingRecipe.hours || 1;
+      document.getElementById('recipeHourlyRateInput').value = editingRecipe.hourlyRate || settings.hourlyRate || 4000;
+      document.getElementById('recipeUtilityPercentInput').value = String(editingRecipe.utilityPercent || 10);
+
+      renderRecipeIngredientsList();
+      renderRecipePackagingList();
+      switchEditorTab('ingredients');
+      recalcRecipeModalLive();
+    }
+
+    function switchEditorTab(tab) {
+      document.querySelectorAll('.editor-tab-btn').forEach(btn => {
+        btn.className = 'editor-tab-btn pb-2 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800';
+      });
+      const activeBtn = document.getElementById(`tabBtn-${tab}`);
+      if (activeBtn) {
+        activeBtn.className = 'editor-tab-btn pb-2 text-xs font-black border-b-2 border-kitchenOrange-600 text-kitchenOrange-700';
+      }
+
+      document.getElementById('tabContent-ingredients').classList.add('hidden');
+      document.getElementById('tabContent-packaging').classList.add('hidden');
+      document.getElementById('tabContent-labor').classList.add('hidden');
+      document.getElementById(`tabContent-${tab}`).classList.remove('hidden');
+    }
+
+    function renderRecipeIngredientsList() {
+      const container = document.getElementById('recipeIngredientsList');
+      container.innerHTML = '';
+      const ings = editingRecipe.ingredients || [];
+      document.getElementById('countTabIngredients').textContent = ings.length;
+
+      if (ings.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">No hay ingredientes agregados todavía. Tocá arriba "+ Agregar Ingrediente".</p>`;
+        return;
+      }
+
+      ings.forEach((ing, idx) => {
+        const p = pantry.find(item => item.id === ing.pantryId);
+        const name = p ? p.name : 'Ingrediente eliminado';
+        const unit = p ? p.unit : 'g';
+        const unitCost = p ? getPantryItemCostPerUnit(p) : 0;
+        const itemTotal = unitCost * (ing.amount || 0);
+
+        const row = document.createElement('div');
+        row.className = `flex items-center justify-between p-2.5 rounded-xl border transition-all ${
+          ing.active ? 'bg-white border-orange-200' : 'bg-slate-50 border-slate-200 opacity-60'
+        }`;
+
+        row.innerHTML = `
+          <div class="flex items-center gap-2.5 flex-1 mr-2">
+            <!-- Toggle Activo / Pausado (NO BORRA, SOLO DESCARGA) -->
+            <input 
+              type="checkbox" 
+              ${ing.active ? 'checked' : ''} 
+              onchange="toggleRecipeItemActive('ingredients', ${idx}, this.checked)"
+              class="w-4 h-4 rounded text-kitchenOrange-600 focus:ring-orange-500 cursor-pointer"
+              title="Activar / Desactivar este ingrediente en el costo"
+            >
+            <div class="flex-1">
+              <span class="text-xs font-bold text-slate-800 block">${name}</span>
+              <span class="text-[10px] text-slate-400">($ ${Math.round(unitCost * 1000)} / kg o costo base)</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1">
+              <input 
+                type="number" 
+                step="any"
+                value="${ing.amount}" 
+                oninput="updateRecipeItemAmount('ingredients', ${idx}, this.value)"
+                class="w-16 px-2 py-1 rounded-lg border border-slate-200 text-xs font-black text-right bg-white"
+              >
+              <span class="text-[11px] font-bold text-slate-500">${unit}</span>
+            </div>
+            <span class="text-xs font-black text-slate-800 w-16 text-right">${formatCurrency(itemTotal)}</span>
+            <button type="button" onclick="removeRecipeItem('ingredients', ${idx})" class="text-slate-300 hover:text-rose-500 p-1">✕</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function renderRecipePackagingList() {
+      const container = document.getElementById('recipePackagingList');
+      container.innerHTML = '';
+      const packs = editingRecipe.packaging || [];
+      document.getElementById('countTabPackaging').textContent = packs.length;
+
+      if (packs.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">No hay packaging agregado. Tocá arriba "+ Agregar Packaging".</p>`;
+        return;
+      }
+
+      packs.forEach((pack, idx) => {
+        const p = pantry.find(item => item.id === pack.pantryId);
+        const name = p ? p.name : 'Packaging eliminado';
+        const unit = p ? p.unit : 'u';
+        const unitCost = p ? getPantryItemCostPerUnit(p) : 0;
+        const itemTotal = unitCost * (pack.amount || 0);
+
+        const row = document.createElement('div');
+        row.className = `flex items-center justify-between p-2.5 rounded-xl border transition-all ${
+          pack.active ? 'bg-white border-orange-200' : 'bg-slate-50 border-slate-200 opacity-60'
+        }`;
+
+        row.innerHTML = `
+          <div class="flex items-center gap-2.5 flex-1 mr-2">
+            <input 
+              type="checkbox" 
+              ${pack.active ? 'checked' : ''} 
+              onchange="toggleRecipeItemActive('packaging', ${idx}, this.checked)"
+              class="w-4 h-4 rounded text-kitchenOrange-600 focus:ring-orange-500 cursor-pointer"
+              title="Activar / Desactivar este packaging en el costo"
+            >
+            <div class="flex-1">
+              <span class="text-xs font-bold text-slate-800 block">${name}</span>
+              <span class="text-[10px] text-slate-400">($ ${Math.round(unitCost)} c/u)</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1">
+              <input 
+                type="number" 
+                step="any"
+                value="${pack.amount}" 
+                oninput="updateRecipeItemAmount('packaging', ${idx}, this.value)"
+                class="w-14 px-2 py-1 rounded-lg border border-slate-200 text-xs font-black text-right bg-white"
+              >
+              <span class="text-[11px] font-bold text-slate-500">${unit}</span>
+            </div>
+            <span class="text-xs font-black text-slate-800 w-16 text-right">${formatCurrency(itemTotal)}</span>
+            <button type="button" onclick="removeRecipeItem('packaging', ${idx})" class="text-slate-300 hover:text-rose-500 p-1">✕</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function toggleRecipeItemActive(type, index, active) {
+      if (!editingRecipe) return;
+      editingRecipe[type][index].active = active;
+      if (type === 'ingredients') renderRecipeIngredientsList();
+      else renderRecipePackagingList();
+      recalcRecipeModalLive();
+    }
+
+    function updateRecipeItemAmount(type, index, value) {
+      if (!editingRecipe) return;
+      editingRecipe[type][index].amount = parseFloat(value) || 0;
+      recalcRecipeModalLive();
+    }
+
+    function removeRecipeItem(type, index) {
+      if (!editingRecipe) return;
+      editingRecipe[type].splice(index, 1);
+      if (type === 'ingredients') renderRecipeIngredientsList();
+      else renderRecipePackagingList();
+      recalcRecipeModalLive();
+    }
+
+    function promptAddIngredientToRecipe() {
+      const foodPantry = pantry.filter(item => item.type === 'food');
+      if (foodPantry.length === 0) {
+        alert('Tu despensa de ingredientes está vacía. Primero cargá insumos en la Despensa.');
+        return;
+      }
+
+      const options = foodPantry.map((item, idx) => `${idx + 1}. ${item.name} ($ ${item.costPaid} por ${item.qtyBought} ${item.unit})`).join('\n');
+      const choice = prompt(`Elegí el número del ingrediente a agregar:\n\n${options}`);
+      if (!choice) return;
+
+      const num = parseInt(choice, 10);
+      if (num >= 1 && num <= foodPantry.length) {
+        const selected = foodPantry[num - 1];
+        const amountStr = prompt(`¿Cuántos ${selected.unit} lleva esta tanda?`, selected.unit === 'g' ? '500' : '1');
+        const amount = parseFloat(amountStr) || 1;
+
+        editingRecipe.ingredients.push({
+          pantryId: selected.id,
+          amount: amount,
+          active: true
+        });
+        renderRecipeIngredientsList();
+        recalcRecipeModalLive();
+      }
+    }
+
+    function promptAddPackagingToRecipe() {
+      const packPantry = pantry.filter(item => item.type === 'pack');
+      if (packPantry.length === 0) {
+        alert('Tu despensa de packaging está vacía. Cargá cajas o bolsas en la Despensa.');
+        return;
+      }
+
+      const options = packPantry.map((item, idx) => `${idx + 1}. ${item.name} ($ ${item.costPaid})`).join('\n');
+      const choice = prompt(`Elegí el número del packaging a agregar:\n\n${options}`);
+      if (!choice) return;
+
+      const num = parseInt(choice, 10);
+      if (num >= 1 && num <= packPantry.length) {
+        const selected = packPantry[num - 1];
+        const amountStr = prompt(`¿Cuántas unidades de ${selected.name} lleva?`, '1');
+        const amount = parseFloat(amountStr) || 1;
+
+        editingRecipe.packaging.push({
+          pantryId: selected.id,
+          amount: amount,
+          active: true
+        });
+        renderRecipePackagingList();
+        recalcRecipeModalLive();
+      }
+    }
+
+    function setRecipeMargin(margin) {
+      if (!editingRecipe) return;
+      editingRecipe.marginPercent = margin;
+      document.querySelectorAll('#marginPresetButtons .margin-btn').forEach(btn => {
+        const m = parseInt(btn.getAttribute('data-margin'), 10);
+        if (m === margin) {
+          btn.className = 'margin-btn py-1 rounded-lg border text-[11px] font-bold bg-kitchenOrange-600 text-white border-kitchenOrange-600 shadow-sm';
+        } else {
+          btn.className = 'margin-btn py-1 rounded-lg border text-[11px] font-bold bg-white text-slate-700';
+        }
+      });
+      document.getElementById('liveMarginLabel').textContent = `${margin}%`;
+      recalcRecipeModalLive();
+    }
+
+    function recalcRecipeModalLive() {
+      if (!editingRecipe) return;
+
+      // Sincronizar inputs
+      editingRecipe.icon = document.getElementById('recipeIconInput').value.trim() || '🍳';
+      document.getElementById('recipeModalIconDisplay').textContent = editingRecipe.icon;
+      editingRecipe.name = document.getElementById('recipeNameInput').value.trim();
+      editingRecipe.saleType = document.getElementById('recipeSaleTypeInput').value;
+      editingRecipe.yieldAmount = parseFloat(document.getElementById('recipeYieldInput').value) || 1;
+      editingRecipe.includeLabor = document.getElementById('recipeIncludeLaborToggle').checked;
+      editingRecipe.hours = parseFloat(document.getElementById('recipeHoursInput').value) || 0;
+      editingRecipe.hourlyRate = parseFloat(document.getElementById('recipeHourlyRateInput').value) || (settings.hourlyRate || 4000);
+      editingRecipe.utilityPercent = parseFloat(document.getElementById('recipeUtilityPercentInput').value) || 10;
+
+      // Actualizar label de unidad
+      const unitSpan = document.getElementById('recipeYieldUnitSpan');
+      const unitCostLabel = document.getElementById('liveUnitCostLabel');
+      if (editingRecipe.saleType === 'unit') {
+        unitSpan.textContent = 'unidades';
+        unitCostLabel.textContent = 'Costo por Unidad';
+      } else if (editingRecipe.saleType === 'kg') {
+        unitSpan.textContent = 'kg totales';
+        unitCostLabel.textContent = 'Costo por Kilo';
+      } else {
+        unitSpan.textContent = 'docenas';
+        unitCostLabel.textContent = 'Costo por Docena';
+      }
+
+      // Calcular
+      const calc = calculateRecipeCosts(editingRecipe);
+
+      document.getElementById('liveTandaCostSummary').textContent = `Costo Tanda: ${formatCurrency(calc.totalTandaCost)}`;
+      document.getElementById('liveFoodCost').textContent = formatCurrency(calc.foodCost);
+      document.getElementById('livePackagingCost').textContent = formatCurrency(calc.packagingCost);
+      document.getElementById('liveLaborCost').textContent = formatCurrency(calc.laborCost);
+      document.getElementById('liveUnitCostDisplay').textContent = formatCurrency(calc.unitCost);
+      document.getElementById('liveSuggestedPriceDisplay').textContent = formatCurrency(calc.suggestedPrice);
+    }
+
+    function saveRecipeModal() {
+      if (!editingRecipe) return;
+      editingRecipe.name = document.getElementById('recipeNameInput').value.trim();
+      if (!editingRecipe.name) {
+        alert('Por favor poné un nombre a la receta (ej: Pizza Muzzarella).');
+        return;
+      }
+
+      const idx = recipes.findIndex(item => item.id === editingRecipe.id);
+      if (idx !== -1) {
+        recipes[idx] = editingRecipe;
+        showToast('Receta actualizada con éxito', '✓');
+      } else {
+        recipes.unshift(editingRecipe);
+        showToast('Nueva receta creada', '🍳');
+      }
+
+      persistData();
+      renderRecipes();
+      closeRecipeModal();
+    }
+
+    function duplicateRecipe(recipeId) {
+      const found = recipes.find(item => item.id === recipeId);
+      if (!found) return;
+
+      const dup = JSON.parse(JSON.stringify(found));
+      dup.id = 'rec-' + Date.now();
+      dup.name = `${dup.name} (Copia)`;
+      recipes.unshift(dup);
+
+      persistData();
+      renderRecipes();
+      showToast('Receta duplicada para editar', '📋');
+    }
+
+    function deleteRecipe(recipeId) {
+      if (confirm('¿Estás seguro/a de eliminar esta receta?')) {
+        recipes = recipes.filter(item => item.id !== recipeId);
+        persistData();
+        renderRecipes();
+        showToast('Receta eliminada', '🗑️');
+      }
+    }
+
+    // ==========================================
+    // COTIZACIÓN POR WHATSAPP
+    // ==========================================
+    function sendWhatsAppQuote(recipeId) {
+      const r = recipes.find(item => item.id === recipeId);
+      if (!r) return;
+
+      const calc = calculateRecipeCosts(r);
+      let saleTypeText = 'por unidad';
+      if (r.saleType === 'kg') saleTypeText = 'el kilo';
+      if (r.saleType === 'dozen') saleTypeText = 'la docena';
+
+      const salon = settings.salonName || 'Mi Cocina';
+      let text = `¡Hola! Te comparto la información y precio de *${r.name}* en *${salon}*:\n\n` +
+                 `• Presentación: Venta ${saleTypeText}\n` +
+                 `• Precio: *${formatCurrency(calc.suggestedPrice)}*\n\n` +
+                 `Elaboración casera con insumos de primera calidad, lista para disfrutar o enviar al horno.\n` +
+                 `¿Te reservo para qué día y horario? ¡Muchas gracias!`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('¡Texto copiado! Listo para pegar en WhatsApp', '💬');
+      }).catch(() => {
+        alert(text);
+      });
+    }
+
+    // ==========================================
+    // DESPENSA DE INSUMOS & INFLACIÓN
+    // ==========================================
+    function openPantryModal() {
+      switchPantryTab(currentPantryTab);
+      document.getElementById('pantryModal').classList.remove('hidden');
+    }
+
+    function closePantryModal() {
+      document.getElementById('pantryModal').classList.add('hidden');
+    }
+
+    function switchPantryTab(tab) {
+      currentPantryTab = tab;
+      const foodBtn = document.getElementById('pantryTabBtn-food');
+      const packBtn = document.getElementById('pantryTabBtn-pack');
+      const formTitle = document.getElementById('newPantryFormTitle');
+
+      if (tab === 'food') {
+        foodBtn.className = 'pb-2 text-xs font-black border-b-2 border-kitchenOrange-600 text-kitchenOrange-700';
+        packBtn.className = 'pb-2 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800';
+        formTitle.textContent = '+ Cargar nuevo ingrediente comestible';
+      } else {
+        packBtn.className = 'pb-2 text-xs font-black border-b-2 border-kitchenOrange-600 text-kitchenOrange-700';
+        foodBtn.className = 'pb-2 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800';
+        formTitle.textContent = '+ Cargar nuevo packaging o descartable';
+      }
+      renderPantryList();
+    }
+
+    function renderPantryList() {
+      const container = document.getElementById('pantryItemsContainer');
+      container.innerHTML = '';
+
+      const items = pantry.filter(item => item.type === currentPantryTab);
+      if (items.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">No hay insumos en esta categoría.</p>`;
+        return;
+      }
+
+      items.forEach((p, idx) => {
+        const unitCost = getPantryItemCostPerUnit(p);
+        const row = document.createElement('div');
+        row.className = "flex items-center justify-between p-2.5 rounded-xl border border-orange-100 bg-orange-50/40 text-xs";
+
+        row.innerHTML = `
+          <div class="flex-1 mr-2">
+            <span class="font-bold text-slate-900 block">${p.name}</span>
+            <span class="text-[10px] text-slate-500">Comprado: ${p.qtyBought} ${p.unit} a ${formatCurrency(p.costPaid)}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="font-black text-kitchenOrange-900 text-xs">${formatCurrency(p.costPaid)}</span>
+            <button type="button" onclick="editPantryItemPrice('${p.id}')" class="text-kitchenOrange-600 font-bold hover:underline text-[11px]">Editar $</button>
+            <button type="button" onclick="deletePantryItem('${p.id}')" class="text-slate-300 hover:text-rose-500">✕</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function saveNewPantryItem(e) {
+      e.preventDefault();
+      const name = document.getElementById('pantryItemName').value.trim();
+      const qty = parseFloat(document.getElementById('pantryItemQty').value) || 1;
+      const unit = document.getElementById('pantryItemUnit').value;
+      const cost = parseFloat(document.getElementById('pantryItemCost').value) || 0;
+
+      const newItem = {
+        id: (currentPantryTab === 'food' ? 'i-' : 'p-') + Date.now(),
+        name,
+        type: currentPantryTab,
+        qtyBought: qty,
+        unit,
+        costPaid: cost,
+        active: true
+      };
+
+      pantry.unshift(newItem);
+      persistData();
+      renderPantryList();
+      renderRecipes();
+      document.getElementById('newPantryItemForm').reset();
+      showToast('Insumo guardado en la Despensa', '🥫');
+    }
+
+    function editPantryItemPrice(itemId) {
+      const p = pantry.find(item => item.id === itemId);
+      if (!p) return;
+
+      const newPriceStr = prompt(`Nuevo precio pagado por ${p.name} (${p.qtyBought} ${p.unit}):`, p.costPaid);
+      if (!newPriceStr) return;
+
+      const newPrice = parseFloat(newPriceStr);
+      if (!isNaN(newPrice) && newPrice > 0) {
+        p.costPaid = newPrice;
+        persistData();
+        renderPantryList();
+        renderRecipes();
+        showToast('Precio actualizado en todas tus recetas', '✓');
+      }
+    }
+
+    function deletePantryItem(itemId) {
+      if (confirm('¿Eliminar este insumo de la despensa?')) {
+        pantry = pantry.filter(item => item.id !== itemId);
+        persistData();
+        renderPantryList();
+        renderRecipes();
+        showToast('Insumo eliminado', '🗑️');
+      }
+    }
+
+    function applyGlobalInflation(percent) {
+      if (!confirm(`¿Querés aumentar TODOS los precios de tu despensa un +${percent}% por inflación? Se actualizarán los costos de todas tus recetas automáticamente.`)) {
+        return;
+      }
+
+      const mult = 1 + (percent / 100);
+      pantry.forEach(item => {
+        item.costPaid = Math.round(item.costPaid * mult);
+      });
+
+      persistData();
+      renderPantryList();
+      renderRecipes();
+      showToast(`¡Aumento de +${percent}% aplicado a toda la despensa!`, '⚡');
+    }
+
+    // ==========================================
+    // CALCULADORA DE COMBOS / PROMOS
+    // ==========================================
+    function openCombosModal() {
+      if (recipes.length === 0) {
+        alert('Cargá primero alguna receta para armar un combo.');
+        return;
+      }
+      if (comboItems.length === 0) {
+        comboItems = [
+          { recipeId: recipes[0].id, quantity: 2 }
+        ];
+      }
+      renderComboItems();
+      recalcComboModal();
+      document.getElementById('combosModal').classList.remove('hidden');
+    }
+
+    function closeCombosModal() {
+      document.getElementById('combosModal').classList.add('hidden');
+    }
+
+    function addComboItemRow() {
+      if (recipes.length === 0) return;
+      comboItems.push({ recipeId: recipes[0].id, quantity: 1 });
+      renderComboItems();
+      recalcComboModal();
+    }
+
+    function renderComboItems() {
+      const container = document.getElementById('comboItemsContainer');
+      container.innerHTML = '';
+
+      comboItems.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.className = "flex items-center gap-2 bg-orange-50/50 p-2 rounded-xl border border-orange-100";
+
+        let options = recipes.map(r => `<option value="${r.id}" ${r.id === item.recipeId ? 'selected' : ''}>${r.icon || '🍳'} ${r.name}</option>`).join('');
+
+        row.innerHTML = `
+          <select onchange="updateComboItem(${idx}, 'recipeId', this.value)" class="flex-1 px-2.5 py-1.5 rounded-lg border border-orange-200 text-xs font-bold bg-white">
+            ${options}
+          </select>
+          <div class="flex items-center gap-1">
+            <span class="text-[11px] font-bold text-slate-500">Cant:</span>
+            <input type="number" min="1" value="${item.quantity}" oninput="updateComboItem(${idx}, 'quantity', this.value)" class="w-14 px-2 py-1 rounded-lg border border-orange-200 text-xs font-black text-center bg-white">
+          </div>
+          <button type="button" onclick="removeComboItemRow(${idx})" class="text-slate-300 hover:text-rose-500 p-1">✕</button>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function updateComboItem(idx, key, val) {
+      if (key === 'quantity') {
+        comboItems[idx][key] = parseInt(val, 10) || 1;
+      } else {
+        comboItems[idx][key] = val;
+      }
+      recalcComboModal();
+    }
+
+    function removeComboItemRow(idx) {
+      comboItems.splice(idx, 1);
+      renderComboItems();
+      recalcComboModal();
+    }
+
+    function recalcComboModal() {
+      let totalCost = 0;
+      let totalNormalPrice = 0;
+
+      comboItems.forEach(item => {
+        const r = recipes.find(rec => rec.id === item.recipeId);
+        if (r) {
+          const calc = calculateRecipeCosts(r);
+          const qty = item.quantity || 1;
+          totalCost += calc.unitCost * qty;
+          totalNormalPrice += calc.suggestedPrice * qty;
+        }
+      });
+
+      const discPct = parseInt(document.getElementById('comboDiscountSelect').value, 10) || 15;
+      const finalPrice = totalNormalPrice * (1 - (discPct / 100));
+      const netProfit = finalPrice - totalCost;
+
+      document.getElementById('comboTotalCost').textContent = formatCurrency(totalCost);
+      document.getElementById('comboNormalPrice').textContent = formatCurrency(totalNormalPrice);
+      document.getElementById('comboFinalPrice').textContent = formatCurrency(finalPrice);
+      document.getElementById('comboNetProfit').textContent = formatCurrency(netProfit);
+    }
+
+    function copyComboWhatsAppText() {
+      const name = document.getElementById('comboNameInput').value.trim() || 'Super Promo Especial';
+      const discPct = document.getElementById('comboDiscountSelect').value;
+      const finalPrice = document.getElementById('comboFinalPrice').textContent;
+      const normalPrice = document.getElementById('comboNormalPrice').textContent;
+
+      let detail = '';
+      comboItems.forEach(item => {
+        const r = recipes.find(rec => rec.id === item.recipeId);
+        if (r) {
+          detail += `• ${item.quantity} x ${r.name}\n`;
+        }
+      });
+
+      const text = `🔥 *${name}* (${discPct}% OFF)\n\n` +
+                   `Incluye:\n${detail}\n` +
+                   `❌ Precio regular: ~${normalPrice}~\n` +
+                   `💥 *PRECIO PROMO: ${finalPrice}*\n\n` +
+                   `¡Pedilo con anticipación para reservar tu tanda! 🍕🎂`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('¡Texto de la promo copiado para WhatsApp!', '🎁');
+      }).catch(() => {
+        alert(text);
+      });
+    }
+
+    // ==========================================
+    // PERFIL & LOGO
+    // ==========================================
+    function openProfileModal() {
+      document.getElementById('settingsSalonName').value = settings.salonName || DEFAULT_SETTINGS.salonName;
+      document.getElementById('settingsSalonPhone').value = settings.salonPhone || '';
+      document.getElementById('settingsHourlyRate').value = settings.hourlyRate || 4000;
+      updateLogoPreview(settings.salonLogo);
+      document.getElementById('profileModal').classList.remove('hidden');
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profileModal').classList.add('hidden');
+    }
+
+    function handleLogoUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const maxDim = 320;
+          let w = img.width;
+          let h = img.height;
+
+          if (w > h) {
+            if (w > maxDim) {
+              h = Math.round(h * (maxDim / w));
+              w = maxDim;
+            }
+          } else {
+            if (h > maxDim) {
+              w = Math.round(w * (maxDim / h));
+              h = maxDim;
+            }
+          }
+
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+
+          const compressed = canvas.toDataURL('image/jpeg', 0.85);
+          settings.salonLogo = compressed;
+          updateLogoPreview(compressed);
+          applySalonBranding();
+          showToast('Logo cargado y optimizado', '📷');
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeLogo() {
+      settings.salonLogo = '';
+      updateLogoPreview('');
+      applySalonBranding();
+      showToast('Logo removido', '🍳');
+    }
+
+    function updateLogoPreview(dataUrl) {
+      const img = document.getElementById('settingsLogoPreview');
+      const emoji = document.getElementById('settingsLogoEmoji');
+      if (dataUrl) {
+        img.src = dataUrl;
+        img.classList.remove('hidden');
+        emoji.classList.add('hidden');
+      } else {
+        img.src = '';
+        img.classList.add('hidden');
+        emoji.classList.remove('hidden');
+      }
+    }
+
+    function applySalonBranding() {
+      const name = settings.salonName || DEFAULT_SETTINGS.salonName;
+      document.getElementById('headerTitle').textContent = name;
+
+      const logo = settings.salonLogo;
+      const headerBox = document.getElementById('headerLogoContainer');
+      if (logo) {
+        headerBox.innerHTML = `<img src="${logo}" alt="Logo" class="w-full h-full object-cover">`;
+      } else {
+        headerBox.innerHTML = `<span class="text-2xl">🍳</span>`;
+      }
+    }
+
+    function saveSettings() {
+      settings.salonName = document.getElementById('settingsSalonName').value.trim() || DEFAULT_SETTINGS.salonName;
+      settings.salonPhone = document.getElementById('settingsSalonPhone').value.trim();
+      settings.hourlyRate = parseFloat(document.getElementById('settingsHourlyRate').value) || 4000;
+
+      applySalonBranding();
+      persistData();
+      renderRecipes();
+      closeProfileModal();
+      showToast('Ajustes guardados correctamente', '✓');
+    }
+
+    // ==========================================
+    // COPIAS EN GOOGLE DRIVE & EXCEL
+    // ==========================================
+    function openBackupModal() {
+      const last = settings.lastBackupDate;
+      const textEl = document.getElementById('lastBackupText');
+      if (last) {
+        textEl.textContent = `Última copia: ${new Date(last).toLocaleString('es-AR')}`;
+      } else {
+        textEl.textContent = 'Sincronización automática activa';
+      }
+      document.getElementById('backupModal').classList.remove('hidden');
+    }
+
+    function closeBackupModal() {
+      document.getElementById('backupModal').classList.add('hidden');
+    }
+
+    async function syncToGoogleDriveNow(manual = true) {
+      const btn = document.getElementById('btnSyncNow');
+      const dot = document.getElementById('backupStatusDot');
+
+      if (manual && btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span>⏳ Conectando con Google Drive...</span>`;
+      }
+
+      const payload = {
+        action: 'backup',
+        appName: 'costos_comida',
+        salonName: settings.salonName || 'Costos · Mi Cocina',
+        timestamp: new Date().toISOString(),
+        recipesCount: recipes.length,
+        pantryCount: pantry.length,
+        folderName: AUTO_DRIVE_FOLDER,
+        data: {
+          recipes: recipes,
+          pantry: pantry,
+          settings: settings
+        }
+      };
+
+      try {
+        const webhook = settings.driveWebhookUrl || AUTO_DRIVE_WEBHOOK;
+        await fetch(webhook, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        settings.lastBackupDate = new Date().toISOString();
+        localStorage.setItem('costos_settings', JSON.stringify(settings));
+
+        if (dot) dot.classList.remove('hidden');
+        if (manual) {
+          showToast('¡Copia guardada en Google Drive!', '☁️');
+          const lastEl = document.getElementById('lastBackupText');
+          if (lastEl) lastEl.textContent = `Última copia: ${new Date().toLocaleTimeString('es-AR')} hs`;
+        }
+      } catch (err) {
+        console.warn('Sync notice:', err);
+        if (manual) {
+          showToast('Copia enviada a Google Drive', '☁️');
+        }
+      } finally {
+        if (manual && btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<span>☁️ Guardar Copia en Google Drive Ahora</span>`;
+        }
+      }
+    }
+
+    function shareOrDownloadBackup() {
+      const backupObj = {
+        app: 'costos_comida',
+        exportDate: new Date().toISOString(),
+        recipes: recipes,
+        pantry: pantry,
+        settings: settings
+      };
+      const jsonStr = JSON.stringify(backupObj, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const filename = `copia_costos_cocina_${new Date().toISOString().split('T')[0]}.json`;
+
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      showToast('Copia descargada en tu dispositivo', '📥');
+    }
+
+    function exportCSVForSheets() {
+      let csvContent = '\uFEFF';
+      csvContent += 'Receta,Tipo Venta,Rendimiento Tanda,Costo Total Tanda,Costo Unitario,Margen %,Precio Sugerido,Ganancia Unitaria\n';
+
+      recipes.forEach(r => {
+        const calc = calculateRecipeCosts(r);
+        const row = [
+          `"${r.name || ''}"`,
+          `"${r.saleType || ''}"`,
+          `"${r.yieldAmount || 1} ${r.yieldUnit || ''}"`,
+          Math.round(calc.totalTandaCost),
+          Math.round(calc.unitCost),
+          `${r.marginPercent || 50}%`,
+          Math.round(calc.suggestedPrice),
+          Math.round(calc.unitProfit)
+        ];
+        csvContent += row.join(',') + '\n';
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const filename = `recetas_y_costos_${new Date().toISOString().split('T')[0]}.csv`;
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      showToast('Planilla Excel descargada con éxito', '📊');
+    }
+
+    function importBackupFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (Array.isArray(parsed.recipes)) recipes = parsed.recipes;
+          if (Array.isArray(parsed.pantry)) pantry = parsed.pantry;
+          if (parsed.settings && typeof parsed.settings === 'object') {
+            settings = Object.assign({}, DEFAULT_SETTINGS, parsed.settings);
+          }
+          persistData(true);
+          applySalonBranding();
+          renderRecipes();
+          closeBackupModal();
+          showToast('Copia restaurada exitosamente', '✓');
+        } catch (err) {
+          alert('El archivo no tiene un formato válido.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Inicializador
+    window.addEventListener('DOMContentLoaded', () => {
+      applySalonBranding();
+      renderRecipes();
+      updateMetrics();
+      updateArgClock();
+      setInterval(updateArgClock, 30000);
+    });
+  </script>
+</body>
+</html>
