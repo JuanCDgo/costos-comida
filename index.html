@@ -227,18 +227,23 @@
         <div class="grid grid-cols-2 gap-2.5">
           <div>
             <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1">¿Cómo se vende?</label>
-            <select id="recipeSaleTypeInput" onchange="recalcRecipeModalLive()" class="w-full px-2.5 py-2 rounded-xl border border-orange-200 font-bold text-xs bg-white text-slate-800">
+            <select id="recipeSaleTypeInput" onchange="handleSaleTypeChange()" class="w-full px-2.5 py-2 rounded-xl border border-orange-200 font-bold text-xs bg-white text-slate-800">
               <option value="unit">🍕 Por Unidad (Pizza, Tarta, etc.)</option>
               <option value="kg">🎂 Por Kilo (Torta, Pastas, etc.)</option>
               <option value="dozen">🥟 Por Docena (Pastelitos, Empanadas)</option>
             </select>
           </div>
           <div>
-            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1" id="recipeYieldLabel">Rendimiento tanda</label>
+            <label class="block text-[10px] font-bold text-slate-600 uppercase mb-1" id="recipeYieldLabel">¿Para cuántas unidades es esta cuenta?</label>
             <div class="flex items-center gap-1">
-              <input type="number" step="0.1" id="recipeYieldInput" value="4" oninput="recalcRecipeModalLive()" class="w-full px-3 py-2 rounded-xl border border-orange-200 font-bold text-xs bg-white text-slate-800">
+              <input type="number" step="any" min="0.1" id="recipeYieldInput" value="4" oninput="recalcRecipeModalLive()" class="w-full px-3 py-2 rounded-xl border border-orange-200 font-black text-xs bg-white text-slate-800">
               <span class="text-xs font-bold text-slate-500 whitespace-nowrap" id="recipeYieldUnitSpan">unidades</span>
             </div>
+          </div>
+          <div class="col-span-2 pt-0.5">
+            <p class="text-[11px] text-amber-900 font-semibold bg-amber-50/90 p-2 rounded-xl border border-amber-200" id="recipeYieldHelperText">
+              💡 Ej: Si compraste la bolsa de 5 prepizzas, poné 5. Si estás costeando 1 sola pizza individual, poné 1.
+            </p>
           </div>
         </div>
       </div>
@@ -258,28 +263,136 @@
         </div>
 
         <!-- Solapa 1: Ingredientes -->
-        <div id="tabContent-ingredients" class="space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] font-bold text-slate-500">Activá/desactivá con el tilde sin borrar:</span>
-            <button type="button" onclick="promptAddIngredientToRecipe()" class="text-xs font-bold text-kitchenOrange-700 bg-orange-100 hover:bg-orange-200 px-2.5 py-1 rounded-lg">
-              + Agregar Ingrediente
+        <div id="tabContent-ingredients" class="space-y-3">
+          <!-- Bloque de Carga Rápida Libre de Ingrediente -->
+          <div class="bg-orange-50/80 p-3 rounded-2xl border border-orange-200 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-kitchenOrange-950 uppercase">+ Cargar Ingrediente Libre</span>
+              <span class="text-[10px] text-slate-500 font-bold">Tipeá lo que quieras o elegí de la lista</span>
+            </div>
+            <div class="grid grid-cols-12 gap-1.5">
+              <div class="col-span-12 sm:col-span-5">
+                <input 
+                  type="text" 
+                  id="quickAddIngName" 
+                  list="pantryFoodDatalist" 
+                  placeholder="Ej: Prepizza comprada, Queso..." 
+                  oninput="handleQuickAddIngNameChange()"
+                  class="w-full px-2.5 py-1.5 rounded-xl border border-orange-200 text-xs font-bold bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                <datalist id="pantryFoodDatalist"></datalist>
+              </div>
+              <div class="col-span-4 sm:col-span-2">
+                <input 
+                  type="number" 
+                  step="any" 
+                  id="quickAddIngQty" 
+                  placeholder="Cant." 
+                  value="1" 
+                  oninput="handleQuickAddIngQtyChange()"
+                  class="w-full px-2 py-1.5 rounded-xl border border-orange-200 text-xs font-bold bg-white text-center"
+                >
+              </div>
+              <div class="col-span-4 sm:col-span-2">
+                <select id="quickAddIngUnit" onchange="handleQuickAddIngQtyChange()" class="w-full px-1.5 py-1.5 rounded-xl border border-orange-200 text-xs font-bold bg-white">
+                  <option value="u">u (unid)</option>
+                  <option value="g">gramos</option>
+                  <option value="kg">kilos</option>
+                  <option value="ml">ml</option>
+                  <option value="l">litros</option>
+                </select>
+              </div>
+              <div class="col-span-4 sm:col-span-3">
+                <div class="relative">
+                  <span class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">$</span>
+                  <input 
+                    type="number" 
+                    step="any" 
+                    id="quickAddIngCost" 
+                    placeholder="Costo $" 
+                    class="w-full pl-5 pr-2 py-1.5 rounded-xl border border-orange-200 text-xs font-black text-slate-800 bg-white"
+                  >
+                </div>
+              </div>
+            </div>
+            <button 
+              type="button" 
+              onclick="addCustomIngredientToRecipe()" 
+              class="w-full py-2 bg-kitchenOrange-600 hover:bg-kitchenOrange-700 text-white font-bold text-xs rounded-xl shadow-sm active:scale-95 transition-all flex items-center justify-center gap-1"
+            >
+              <span>+ Sumar este Ingrediente a la Receta</span>
             </button>
           </div>
-          <div id="recipeIngredientsList" class="space-y-2 max-h-56 overflow-y-auto pr-1">
-            <!-- Ingredientes dinámicos con toggle switch -->
+
+          <div class="flex items-center justify-between pt-1">
+            <span class="text-[11px] font-bold text-slate-600">Ingredientes en esta tanda (podés editar cantidades o pausar con el tilde):</span>
+          </div>
+          <div id="recipeIngredientsList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+            <!-- Ingredientes dinámicos -->
           </div>
         </div>
 
         <!-- Solapa 2: Packaging & Descartables -->
-        <div id="tabContent-packaging" class="space-y-2 hidden">
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] font-bold text-slate-500">Cajas, bolsas, folex, stickers:</span>
-            <button type="button" onclick="promptAddPackagingToRecipe()" class="text-xs font-bold text-kitchenOrange-700 bg-orange-100 hover:bg-orange-200 px-2.5 py-1 rounded-lg">
-              + Agregar Packaging
+        <div id="tabContent-packaging" class="space-y-3 hidden">
+          <!-- Bloque de Carga Rápida Libre de Packaging -->
+          <div class="bg-orange-50/80 p-3 rounded-2xl border border-orange-200 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-kitchenOrange-950 uppercase">+ Cargar Packaging Libre</span>
+              <span class="text-[10px] text-slate-500 font-bold">Cajas, bolsas, bandejas, film</span>
+            </div>
+            <div class="grid grid-cols-12 gap-1.5">
+              <div class="col-span-12 sm:col-span-6">
+                <input 
+                  type="text" 
+                  id="quickAddPackName" 
+                  list="pantryPackDatalist" 
+                  placeholder="Ej: Caja de pizza, Bolsa prepizzas..." 
+                  oninput="handleQuickAddPackNameChange()"
+                  class="w-full px-2.5 py-1.5 rounded-xl border border-orange-200 text-xs font-bold bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                <datalist id="pantryPackDatalist"></datalist>
+              </div>
+              <div class="col-span-5 sm:col-span-3">
+                <div class="flex items-center gap-1">
+                  <input 
+                    type="number" 
+                    step="any" 
+                    id="quickAddPackQty" 
+                    placeholder="Cant." 
+                    value="1" 
+                    oninput="handleQuickAddPackQtyChange()"
+                    class="w-full px-2 py-1.5 rounded-xl border border-orange-200 text-xs font-bold bg-white text-center"
+                  >
+                  <span class="text-[11px] font-bold text-slate-500">u</span>
+                </div>
+              </div>
+              <div class="col-span-7 sm:col-span-3">
+                <div class="relative">
+                  <span class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">$</span>
+                  <input 
+                    type="number" 
+                    step="any" 
+                    id="quickAddPackCost" 
+                    placeholder="Costo total $" 
+                    class="w-full pl-5 pr-2 py-1.5 rounded-xl border border-orange-200 text-xs font-black text-slate-800 bg-white"
+                  >
+                </div>
+              </div>
+            </div>
+            <button 
+              type="button" 
+              onclick="addCustomPackagingToRecipe()" 
+              class="w-full py-2 bg-kitchenOrange-600 hover:bg-kitchenOrange-700 text-white font-bold text-xs rounded-xl shadow-sm active:scale-95 transition-all flex items-center justify-center gap-1"
+            >
+              <span>+ Sumar este Packaging a la Receta</span>
             </button>
           </div>
-          <div id="recipePackagingList" class="space-y-2 max-h-56 overflow-y-auto pr-1">
-            <!-- Packaging dinámico con toggle switch -->
+
+          <div class="flex items-center justify-between pt-1">
+            <span class="text-[11px] font-bold text-slate-600">Packaging en esta tanda (podés editar o pausar con el tilde):</span>
+          </div>
+          <div id="recipePackagingList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+            <!-- Packaging dinámico -->
           </div>
         </div>
 
@@ -706,9 +819,10 @@
     // ==========================================
     const DEFAULT_PANTRY = [
       // Comestibles
+      { id: 'i-prepizzas', name: 'Prepizzas compradas (paquete x 5 u)', type: 'food', qtyBought: 5, unit: 'u', costPaid: 3500, active: true },
       { id: 'i-harina', name: 'Harina 0000 (1 kg)', type: 'food', qtyBought: 1000, unit: 'g', costPaid: 1100, active: true },
       { id: 'i-levadura', name: 'Levadura seca (50 g)', type: 'food', qtyBought: 50, unit: 'g', costPaid: 650, active: true },
-      { id: 'i-muzza', name: 'Muzzarella en barra (1 kg)', type: 'food', qtyBought: 1000, unit: 'g', costPaid: 7800, active: true },
+      { id: 'i-muzza', name: 'Muzzarella en barra (1 kg)', type: 'food', qtyBought: 1000, unit: 'g', costPaid: 9500, active: true },
       { id: 'i-tomate', name: 'Puré de tomate (520 g)', type: 'food', qtyBought: 520, unit: 'g', costPaid: 850, active: true },
       { id: 'i-aceite', name: 'Aceite de girasol (1 L)', type: 'food', qtyBought: 1000, unit: 'ml', costPaid: 1600, active: true },
       { id: 'i-huevos', name: 'Maple de huevos (30 u)', type: 'food', qtyBought: 30, unit: 'u', costPaid: 4500, active: true },
@@ -719,6 +833,7 @@
       { id: 'i-membrillo', name: 'Dulce de membrillo en pan (1 kg)', type: 'food', qtyBought: 1000, unit: 'g', costPaid: 3200, active: true },
       { id: 'i-grasa', name: 'Grasa vacuna primer jugo (500 g)', type: 'food', qtyBought: 500, unit: 'g', costPaid: 1200, active: true },
       // Packaging
+      { id: 'p-bolsaprepizza', name: 'Bolsa transparente para prepizzas', type: 'pack', qtyBought: 1, unit: 'u', costPaid: 90, active: true },
       { id: 'p-cajapizza', name: 'Caja para pizza estándar', type: 'pack', qtyBought: 1, unit: 'u', costPaid: 320, active: true },
       { id: 'p-bolsaprop', name: 'Bolsa polipropileno + disco', type: 'pack', qtyBought: 1, unit: 'u', costPaid: 180, active: true },
       { id: 'p-cajatorta', name: 'Caja alta para torta decorada', type: 'pack', qtyBought: 1, unit: 'u', costPaid: 2600, active: true },
@@ -886,10 +1001,14 @@
       if (Array.isArray(r.ingredients)) {
         r.ingredients.forEach(ing => {
           if (ing.active) {
-            const p = pantry.find(item => item.id === ing.pantryId);
-            if (p) {
-              const unitCost = getPantryItemCostPerUnit(p);
-              foodCost += unitCost * (ing.amount || 0);
+            if (typeof ing.cost === 'number' && !isNaN(ing.cost) && ing.cost > 0) {
+              foodCost += ing.cost;
+            } else if (ing.pantryId) {
+              const p = pantry.find(item => item.id === ing.pantryId);
+              if (p) {
+                const unitCost = getPantryItemCostPerUnit(p);
+                foodCost += unitCost * (ing.amount || 0);
+              }
             }
           }
         });
@@ -899,10 +1018,14 @@
       if (Array.isArray(r.packaging)) {
         r.packaging.forEach(pack => {
           if (pack.active) {
-            const p = pantry.find(item => item.id === pack.pantryId);
-            if (p) {
-              const unitCost = getPantryItemCostPerUnit(p);
-              packagingCost += unitCost * (pack.amount || 0);
+            if (typeof pack.cost === 'number' && !isNaN(pack.cost) && pack.cost > 0) {
+              packagingCost += pack.cost;
+            } else if (pack.pantryId) {
+              const p = pantry.find(item => item.id === pack.pantryId);
+              if (p) {
+                const unitCost = getPantryItemCostPerUnit(p);
+                packagingCost += unitCost * (pack.amount || 0);
+              }
             }
           }
         });
@@ -1135,6 +1258,8 @@
       document.getElementById('recipeHourlyRateInput').value = editingRecipe.hourlyRate || settings.hourlyRate || 4000;
       document.getElementById('recipeUtilityPercentInput').value = String(editingRecipe.utilityPercent || 10);
 
+      populateDatalists();
+      handleSaleTypeChange(false);
       renderRecipeIngredientsList();
       renderRecipePackagingList();
       switchEditorTab('ingredients');
@@ -1156,6 +1281,209 @@
       document.getElementById(`tabContent-${tab}`).classList.remove('hidden');
     }
 
+    function handleSaleTypeChange(triggerRecalc = true) {
+      const saleType = document.getElementById('recipeSaleTypeInput').value;
+      const label = document.getElementById('recipeYieldLabel');
+      const unitSpan = document.getElementById('recipeYieldUnitSpan');
+      const helper = document.getElementById('recipeYieldHelperText');
+
+      if (saleType === 'unit') {
+        label.textContent = '¿Para cuántas unidades es esta cuenta?';
+        unitSpan.textContent = 'unidades';
+        helper.innerHTML = '💡 <strong>Ej:</strong> Si compraste un paquete de 5 prepizzas, poné <strong>5</strong>. Si estás costeando <strong>1 sola pizza</strong> individual, poné <strong>1</strong>.';
+      } else if (saleType === 'kg') {
+        label.textContent = '¿Cuántos kilos rinde esta preparación?';
+        unitSpan.textContent = 'kilos';
+        helper.innerHTML = '🎂 <strong>Ej:</strong> Poné los kilos totales que rinde la preparación o torta (ej: <strong>2.5</strong> kg). La app calcula el costo exacto por kilo.';
+      } else if (saleType === 'dozen') {
+        label.textContent = '¿Para cuántas docenas rinde esta masa/relleno?';
+        unitSpan.textContent = 'docenas';
+        helper.innerHTML = '🥟 <strong>Ej:</strong> Si la receta rinde para <strong>3 docenas</strong> de empanadas o pastelitos, poné <strong>3</strong>. La app calcula el costo y precio por docena.';
+      }
+
+      if (triggerRecalc) {
+        recalcRecipeModalLive();
+      }
+    }
+
+    function populateDatalists() {
+      const foodList = document.getElementById('pantryFoodDatalist');
+      const packList = document.getElementById('pantryPackDatalist');
+      if (foodList) {
+        foodList.innerHTML = pantry
+          .filter(p => p.type === 'food')
+          .map(p => `<option value="${p.name}">$ ${p.costPaid} por ${p.qtyBought} ${p.unit}</option>`)
+          .join('');
+      }
+      if (packList) {
+        packList.innerHTML = pantry
+          .filter(p => p.type === 'pack')
+          .map(p => `<option value="${p.name}">$ ${p.costPaid} por ${p.qtyBought} ${p.unit}</option>`)
+          .join('');
+      }
+    }
+
+    function handleQuickAddIngNameChange() {
+      const name = (document.getElementById('quickAddIngName').value || '').trim();
+      if (!name) return;
+      const match = pantry.find(p => p.type === 'food' && p.name.toLowerCase() === name.toLowerCase());
+      if (match) {
+        document.getElementById('quickAddIngUnit').value = match.unit;
+        handleQuickAddIngQtyChange();
+      }
+    }
+
+    function handleQuickAddIngQtyChange() {
+      const name = (document.getElementById('quickAddIngName').value || '').trim();
+      const qty = parseFloat(document.getElementById('quickAddIngQty').value) || 0;
+      if (!name || qty <= 0) return;
+      const match = pantry.find(p => p.type === 'food' && p.name.toLowerCase() === name.toLowerCase());
+      if (match) {
+        const costUnit = getPantryItemCostPerUnit(match);
+        const estCost = Math.round(costUnit * qty);
+        if (estCost > 0) {
+          document.getElementById('quickAddIngCost').value = estCost;
+        }
+      }
+    }
+
+    function addCustomIngredientToRecipe() {
+      if (!editingRecipe) return;
+      const nameInput = document.getElementById('quickAddIngName');
+      const qtyInput = document.getElementById('quickAddIngQty');
+      const unitInput = document.getElementById('quickAddIngUnit');
+      const costInput = document.getElementById('quickAddIngCost');
+
+      const name = (nameInput.value || '').trim();
+      if (!name) {
+        alert('Por favor escribí el nombre del ingrediente (ej: Prepizzas, Queso cremoso, etc.).');
+        nameInput.focus();
+        return;
+      }
+
+      const qty = parseFloat(qtyInput.value) || 1;
+      const unit = unitInput.value || 'u';
+      const costVal = parseFloat(costInput.value);
+      const hasDirectCost = !isNaN(costVal) && costVal > 0;
+
+      let pItem = pantry.find(p => p.type === 'food' && p.name.toLowerCase() === name.toLowerCase());
+      if (!pItem) {
+        pItem = {
+          id: 'i-' + Date.now(),
+          name: name,
+          type: 'food',
+          qtyBought: qty,
+          unit: unit,
+          costPaid: hasDirectCost ? costVal : 0,
+          active: true
+        };
+        pantry.unshift(pItem);
+        persistData(true);
+        populateDatalists();
+      } else if (hasDirectCost && (pItem.costPaid === 0 || isNaN(pItem.costPaid))) {
+        pItem.costPaid = costVal;
+        persistData(true);
+      }
+
+      if (!Array.isArray(editingRecipe.ingredients)) editingRecipe.ingredients = [];
+      editingRecipe.ingredients.push({
+        id: 'ing-' + Date.now(),
+        pantryId: pItem.id,
+        name: pItem.name,
+        amount: qty,
+        unit: unit,
+        cost: hasDirectCost ? costVal : (getPantryItemCostPerUnit(pItem) * qty),
+        active: true
+      });
+
+      nameInput.value = '';
+      costInput.value = '';
+      qtyInput.value = '1';
+
+      renderRecipeIngredientsList();
+      recalcRecipeModalLive();
+      showToast(`Sumado: ${name}`, '✓');
+    }
+
+    function handleQuickAddPackNameChange() {
+      const name = (document.getElementById('quickAddPackName').value || '').trim();
+      if (!name) return;
+      const match = pantry.find(p => p.type === 'pack' && p.name.toLowerCase() === name.toLowerCase());
+      if (match) {
+        handleQuickAddPackQtyChange();
+      }
+    }
+
+    function handleQuickAddPackQtyChange() {
+      const name = (document.getElementById('quickAddPackName').value || '').trim();
+      const qty = parseFloat(document.getElementById('quickAddPackQty').value) || 0;
+      if (!name || qty <= 0) return;
+      const match = pantry.find(p => p.type === 'pack' && p.name.toLowerCase() === name.toLowerCase());
+      if (match) {
+        const costUnit = getPantryItemCostPerUnit(match);
+        const estCost = Math.round(costUnit * qty);
+        if (estCost > 0) {
+          document.getElementById('quickAddPackCost').value = estCost;
+        }
+      }
+    }
+
+    function addCustomPackagingToRecipe() {
+      if (!editingRecipe) return;
+      const nameInput = document.getElementById('quickAddPackName');
+      const qtyInput = document.getElementById('quickAddPackQty');
+      const costInput = document.getElementById('quickAddPackCost');
+
+      const name = (nameInput.value || '').trim();
+      if (!name) {
+        alert('Por favor escribí el nombre del packaging (ej: Caja para pizza, Bolsa prepizzas, etc.).');
+        nameInput.focus();
+        return;
+      }
+
+      const qty = parseFloat(qtyInput.value) || 1;
+      const costVal = parseFloat(costInput.value);
+      const hasDirectCost = !isNaN(costVal) && costVal > 0;
+
+      let pItem = pantry.find(p => p.type === 'pack' && p.name.toLowerCase() === name.toLowerCase());
+      if (!pItem) {
+        pItem = {
+          id: 'p-' + Date.now(),
+          name: name,
+          type: 'pack',
+          qtyBought: qty,
+          unit: 'u',
+          costPaid: hasDirectCost ? costVal : 0,
+          active: true
+        };
+        pantry.unshift(pItem);
+        persistData(true);
+        populateDatalists();
+      } else if (hasDirectCost && (pItem.costPaid === 0 || isNaN(pItem.costPaid))) {
+        pItem.costPaid = costVal;
+        persistData(true);
+      }
+
+      if (!Array.isArray(editingRecipe.packaging)) editingRecipe.packaging = [];
+      editingRecipe.packaging.push({
+        id: 'pack-' + Date.now(),
+        pantryId: pItem.id,
+        name: pItem.name,
+        amount: qty,
+        unit: 'u',
+        cost: hasDirectCost ? costVal : (getPantryItemCostPerUnit(pItem) * qty),
+        active: true
+      });
+
+      nameInput.value = '';
+      costInput.value = '';
+      qtyInput.value = '1';
+
+      renderRecipePackagingList();
+      recalcRecipeModalLive();
+      showToast(`Sumado: ${name}`, '✓');
+    }
+
     function renderRecipeIngredientsList() {
       const container = document.getElementById('recipeIngredientsList');
       container.innerHTML = '';
@@ -1163,51 +1491,78 @@
       document.getElementById('countTabIngredients').textContent = ings.length;
 
       if (ings.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">No hay ingredientes agregados todavía. Tocá arriba "+ Agregar Ingrediente".</p>`;
+        container.innerHTML = `<div class="text-xs text-slate-400 py-4 text-center bg-white/70 rounded-2xl border border-dashed border-orange-200">No hay ingredientes cargados. Usá la barra de arriba para sumar lo que quieras.</div>`;
         return;
       }
 
       ings.forEach((ing, idx) => {
         const p = pantry.find(item => item.id === ing.pantryId);
-        const name = p ? p.name : 'Ingrediente eliminado';
-        const unit = p ? p.unit : 'g';
+        const name = ing.name || (p ? p.name : 'Ingrediente');
+        const unit = ing.unit || (p ? p.unit : 'g');
         const unitCost = p ? getPantryItemCostPerUnit(p) : 0;
-        const itemTotal = unitCost * (ing.amount || 0);
+        const currentCost = (typeof ing.cost === 'number' && !isNaN(ing.cost) && ing.cost > 0)
+          ? ing.cost
+          : (unitCost * (ing.amount || 0));
 
         const row = document.createElement('div');
-        row.className = `flex items-center justify-between p-2.5 rounded-xl border transition-all ${
-          ing.active ? 'bg-white border-orange-200' : 'bg-slate-50 border-slate-200 opacity-60'
+        row.className = `p-2.5 rounded-2xl border transition-all ${
+          ing.active ? 'bg-white border-orange-200 shadow-sm' : 'bg-slate-50 border-slate-200 opacity-60'
         }`;
 
         row.innerHTML = `
-          <div class="flex items-center gap-2.5 flex-1 mr-2">
-            <!-- Toggle Activo / Pausado (NO BORRA, SOLO DESCARGA) -->
-            <input 
-              type="checkbox" 
-              ${ing.active ? 'checked' : ''} 
-              onchange="toggleRecipeItemActive('ingredients', ${idx}, this.checked)"
-              class="w-4 h-4 rounded text-kitchenOrange-600 focus:ring-orange-500 cursor-pointer"
-              title="Activar / Desactivar este ingrediente en el costo"
-            >
-            <div class="flex-1">
-              <span class="text-xs font-bold text-slate-800 block">${name}</span>
-              <span class="text-[10px] text-slate-400">($ ${Math.round(unitCost * 1000)} / kg o costo base)</span>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <div class="flex items-center gap-1">
+          <div class="flex items-center justify-between gap-2">
+            <!-- Checkbox Activo / Pausado (Descarta sin borrar) -->
+            <div class="flex items-center gap-2 flex-1 min-w-0">
               <input 
-                type="number" 
-                step="any"
-                value="${ing.amount}" 
-                oninput="updateRecipeItemAmount('ingredients', ${idx}, this.value)"
-                class="w-16 px-2 py-1 rounded-lg border border-slate-200 text-xs font-black text-right bg-white"
+                type="checkbox" 
+                ${ing.active ? 'checked' : ''} 
+                onchange="toggleRecipeItemActive('ingredients', ${idx}, this.checked)"
+                class="w-4 h-4 rounded text-kitchenOrange-600 focus:ring-orange-500 cursor-pointer shrink-0"
+                title="Pausar / Activar ingrediente en el costo sin borrarlo"
               >
-              <span class="text-[11px] font-bold text-slate-500">${unit}</span>
+              <input 
+                type="text" 
+                value="${name.replace(/"/g, '&quot;')}" 
+                oninput="updateRecipeItemName('ingredients', ${idx}, this.value)"
+                placeholder="Nombre ingrediente"
+                class="w-full px-2 py-1 rounded-lg border border-transparent hover:border-slate-300 focus:border-orange-500 text-xs font-bold text-slate-800 bg-transparent focus:bg-white truncate"
+                title="Tocá para editar el nombre libremente"
+              >
             </div>
-            <span class="text-xs font-black text-slate-800 w-16 text-right">${formatCurrency(itemTotal)}</span>
-            <button type="button" onclick="removeRecipeItem('ingredients', ${idx})" class="text-slate-300 hover:text-rose-500 p-1">✕</button>
+
+            <!-- Cantidad, Unidad, Costo $ y Borrar -->
+            <div class="flex items-center gap-1.5 shrink-0">
+              <div class="flex items-center gap-1">
+                <input 
+                  type="number" 
+                  step="any" 
+                  value="${ing.amount || 1}" 
+                  oninput="updateRecipeItemAmount('ingredients', ${idx}, this.value)"
+                  class="w-16 px-1.5 py-1 rounded-lg border border-slate-200 text-xs font-black text-right bg-white focus:ring-2 focus:ring-orange-500"
+                  title="Cantidad que lleva esta tanda"
+                >
+                <span class="text-[11px] font-bold text-slate-500 w-5 text-left">${unit}</span>
+              </div>
+
+              <div class="relative">
+                <span class="absolute left-1.5 top-1/2 -translate-y-1/2 text-[11px] font-bold text-slate-400">$</span>
+                <input 
+                  type="number" 
+                  step="any" 
+                  value="${Math.round(currentCost)}" 
+                  oninput="updateRecipeItemCostDirect('ingredients', ${idx}, this.value)"
+                  class="w-20 pl-4 pr-1.5 py-1 rounded-lg border border-orange-200 text-xs font-black text-kitchenOrange-950 text-right bg-orange-50/50 focus:bg-white focus:ring-2 focus:ring-orange-500"
+                  title="Costo en $ de este ingrediente (podés cambiarlo directamente)"
+                >
+              </div>
+
+              <button 
+                type="button" 
+                onclick="removeRecipeItem('ingredients', ${idx})" 
+                class="text-slate-300 hover:text-rose-500 p-1 font-bold text-sm"
+                title="Eliminar definitivamente"
+              >✕</button>
+            </div>
           </div>
         `;
         container.appendChild(row);
@@ -1221,50 +1576,78 @@
       document.getElementById('countTabPackaging').textContent = packs.length;
 
       if (packs.length === 0) {
-        container.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">No hay packaging agregado. Tocá arriba "+ Agregar Packaging".</p>`;
+        container.innerHTML = `<div class="text-xs text-slate-400 py-4 text-center bg-white/70 rounded-2xl border border-dashed border-orange-200">No hay packaging cargado. Usá la barra de carga arriba para sumar cajas o bolsas.</div>`;
         return;
       }
 
       packs.forEach((pack, idx) => {
         const p = pantry.find(item => item.id === pack.pantryId);
-        const name = p ? p.name : 'Packaging eliminado';
-        const unit = p ? p.unit : 'u';
+        const name = pack.name || (p ? p.name : 'Packaging');
+        const unit = pack.unit || (p ? p.unit : 'u');
         const unitCost = p ? getPantryItemCostPerUnit(p) : 0;
-        const itemTotal = unitCost * (pack.amount || 0);
+        const currentCost = (typeof pack.cost === 'number' && !isNaN(pack.cost) && pack.cost > 0)
+          ? pack.cost
+          : (unitCost * (pack.amount || 0));
 
         const row = document.createElement('div');
-        row.className = `flex items-center justify-between p-2.5 rounded-xl border transition-all ${
-          pack.active ? 'bg-white border-orange-200' : 'bg-slate-50 border-slate-200 opacity-60'
+        row.className = `p-2.5 rounded-2xl border transition-all ${
+          pack.active ? 'bg-white border-orange-200 shadow-sm' : 'bg-slate-50 border-slate-200 opacity-60'
         }`;
 
         row.innerHTML = `
-          <div class="flex items-center gap-2.5 flex-1 mr-2">
-            <input 
-              type="checkbox" 
-              ${pack.active ? 'checked' : ''} 
-              onchange="toggleRecipeItemActive('packaging', ${idx}, this.checked)"
-              class="w-4 h-4 rounded text-kitchenOrange-600 focus:ring-orange-500 cursor-pointer"
-              title="Activar / Desactivar este packaging en el costo"
-            >
-            <div class="flex-1">
-              <span class="text-xs font-bold text-slate-800 block">${name}</span>
-              <span class="text-[10px] text-slate-400">($ ${Math.round(unitCost)} c/u)</span>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <div class="flex items-center gap-1">
+          <div class="flex items-center justify-between gap-2">
+            <!-- Checkbox Activo / Pausado -->
+            <div class="flex items-center gap-2 flex-1 min-w-0">
               <input 
-                type="number" 
-                step="any"
-                value="${pack.amount}" 
-                oninput="updateRecipeItemAmount('packaging', ${idx}, this.value)"
-                class="w-14 px-2 py-1 rounded-lg border border-slate-200 text-xs font-black text-right bg-white"
+                type="checkbox" 
+                ${pack.active ? 'checked' : ''} 
+                onchange="toggleRecipeItemActive('packaging', ${idx}, this.checked)"
+                class="w-4 h-4 rounded text-kitchenOrange-600 focus:ring-orange-500 cursor-pointer shrink-0"
+                title="Pausar / Activar packaging en el costo sin borrarlo"
               >
-              <span class="text-[11px] font-bold text-slate-500">${unit}</span>
+              <input 
+                type="text" 
+                value="${name.replace(/"/g, '&quot;')}" 
+                oninput="updateRecipeItemName('packaging', ${idx}, this.value)"
+                placeholder="Nombre packaging"
+                class="w-full px-2 py-1 rounded-lg border border-transparent hover:border-slate-300 focus:border-orange-500 text-xs font-bold text-slate-800 bg-transparent focus:bg-white truncate"
+                title="Tocá para editar el nombre libremente"
+              >
             </div>
-            <span class="text-xs font-black text-slate-800 w-16 text-right">${formatCurrency(itemTotal)}</span>
-            <button type="button" onclick="removeRecipeItem('packaging', ${idx})" class="text-slate-300 hover:text-rose-500 p-1">✕</button>
+
+            <!-- Cantidad, Unidad, Costo $ y Borrar -->
+            <div class="flex items-center gap-1.5 shrink-0">
+              <div class="flex items-center gap-1">
+                <input 
+                  type="number" 
+                  step="any" 
+                  value="${pack.amount || 1}" 
+                  oninput="updateRecipeItemAmount('packaging', ${idx}, this.value)"
+                  class="w-14 px-1.5 py-1 rounded-lg border border-slate-200 text-xs font-black text-right bg-white focus:ring-2 focus:ring-orange-500"
+                  title="Cantidad de unidades"
+                >
+                <span class="text-[11px] font-bold text-slate-500 w-4 text-left">${unit}</span>
+              </div>
+
+              <div class="relative">
+                <span class="absolute left-1.5 top-1/2 -translate-y-1/2 text-[11px] font-bold text-slate-400">$</span>
+                <input 
+                  type="number" 
+                  step="any" 
+                  value="${Math.round(currentCost)}" 
+                  oninput="updateRecipeItemCostDirect('packaging', ${idx}, this.value)"
+                  class="w-20 pl-4 pr-1.5 py-1 rounded-lg border border-orange-200 text-xs font-black text-kitchenOrange-950 text-right bg-orange-50/50 focus:bg-white focus:ring-2 focus:ring-orange-500"
+                  title="Costo en $ de este packaging (podés cambiarlo directamente)"
+                >
+              </div>
+
+              <button 
+                type="button" 
+                onclick="removeRecipeItem('packaging', ${idx})" 
+                class="text-slate-300 hover:text-rose-500 p-1 font-bold text-sm"
+                title="Eliminar definitivamente"
+              >✕</button>
+            </div>
           </div>
         `;
         container.appendChild(row);
@@ -1280,9 +1663,36 @@
     }
 
     function updateRecipeItemAmount(type, index, value) {
-      if (!editingRecipe) return;
-      editingRecipe[type][index].amount = parseFloat(value) || 0;
+      if (!editingRecipe || !editingRecipe[type] || !editingRecipe[type][index]) return;
+      const amt = parseFloat(value) || 0;
+      const item = editingRecipe[type][index];
+      item.amount = amt;
+      if (item.pantryId) {
+        const p = pantry.find(pItem => pItem.id === item.pantryId);
+        if (p) {
+          const unitCost = getPantryItemCostPerUnit(p);
+          item.cost = unitCost * amt;
+        }
+      }
       recalcRecipeModalLive();
+    }
+
+    function updateRecipeItemCostDirect(type, index, value) {
+      if (!editingRecipe || !editingRecipe[type] || !editingRecipe[type][index]) return;
+      const costNum = parseFloat(value) || 0;
+      editingRecipe[type][index].cost = costNum;
+      recalcRecipeModalLive();
+    }
+
+    function updateRecipeItemName(type, index, value) {
+      if (!editingRecipe || !editingRecipe[type] || !editingRecipe[type][index]) return;
+      editingRecipe[type][index].name = value;
+      if (editingRecipe[type][index].pantryId) {
+        const p = pantry.find(pItem => pItem.id === editingRecipe[type][index].pantryId);
+        if (p) {
+          p.name = value;
+        }
+      }
     }
 
     function removeRecipeItem(type, index) {
@@ -1291,60 +1701,6 @@
       if (type === 'ingredients') renderRecipeIngredientsList();
       else renderRecipePackagingList();
       recalcRecipeModalLive();
-    }
-
-    function promptAddIngredientToRecipe() {
-      const foodPantry = pantry.filter(item => item.type === 'food');
-      if (foodPantry.length === 0) {
-        alert('Tu despensa de ingredientes está vacía. Primero cargá insumos en la Despensa.');
-        return;
-      }
-
-      const options = foodPantry.map((item, idx) => `${idx + 1}. ${item.name} ($ ${item.costPaid} por ${item.qtyBought} ${item.unit})`).join('\n');
-      const choice = prompt(`Elegí el número del ingrediente a agregar:\n\n${options}`);
-      if (!choice) return;
-
-      const num = parseInt(choice, 10);
-      if (num >= 1 && num <= foodPantry.length) {
-        const selected = foodPantry[num - 1];
-        const amountStr = prompt(`¿Cuántos ${selected.unit} lleva esta tanda?`, selected.unit === 'g' ? '500' : '1');
-        const amount = parseFloat(amountStr) || 1;
-
-        editingRecipe.ingredients.push({
-          pantryId: selected.id,
-          amount: amount,
-          active: true
-        });
-        renderRecipeIngredientsList();
-        recalcRecipeModalLive();
-      }
-    }
-
-    function promptAddPackagingToRecipe() {
-      const packPantry = pantry.filter(item => item.type === 'pack');
-      if (packPantry.length === 0) {
-        alert('Tu despensa de packaging está vacía. Cargá cajas o bolsas en la Despensa.');
-        return;
-      }
-
-      const options = packPantry.map((item, idx) => `${idx + 1}. ${item.name} ($ ${item.costPaid})`).join('\n');
-      const choice = prompt(`Elegí el número del packaging a agregar:\n\n${options}`);
-      if (!choice) return;
-
-      const num = parseInt(choice, 10);
-      if (num >= 1 && num <= packPantry.length) {
-        const selected = packPantry[num - 1];
-        const amountStr = prompt(`¿Cuántas unidades de ${selected.name} lleva?`, '1');
-        const amount = parseFloat(amountStr) || 1;
-
-        editingRecipe.packaging.push({
-          pantryId: selected.id,
-          amount: amount,
-          active: true
-        });
-        renderRecipePackagingList();
-        recalcRecipeModalLive();
-      }
     }
 
     function setRecipeMargin(margin) {
@@ -1512,24 +1868,66 @@
         return;
       }
 
-      items.forEach((p, idx) => {
-        const unitCost = getPantryItemCostPerUnit(p);
+      items.forEach((p) => {
         const row = document.createElement('div');
-        row.className = "flex items-center justify-between p-2.5 rounded-xl border border-orange-100 bg-orange-50/40 text-xs";
+        row.className = "flex items-center justify-between p-2.5 rounded-2xl border border-orange-100 bg-orange-50/40 text-xs gap-2";
 
         row.innerHTML = `
-          <div class="flex-1 mr-2">
-            <span class="font-bold text-slate-900 block">${p.name}</span>
-            <span class="text-[10px] text-slate-500">Comprado: ${p.qtyBought} ${p.unit} a ${formatCurrency(p.costPaid)}</span>
+          <div class="flex-1 min-w-0 mr-1">
+            <span class="font-bold text-slate-900 block truncate text-xs">${p.name}</span>
+            <span class="text-[10px] text-slate-500">Comprado: ${p.qtyBought} ${p.unit}</span>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="font-black text-kitchenOrange-900 text-xs">${formatCurrency(p.costPaid)}</span>
-            <button type="button" onclick="editPantryItemPrice('${p.id}')" class="text-kitchenOrange-600 font-bold hover:underline text-[11px]">Editar $</button>
-            <button type="button" onclick="deletePantryItem('${p.id}')" class="text-slate-300 hover:text-rose-500">✕</button>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <div class="relative">
+              <span class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">$</span>
+              <input 
+                type="number" 
+                step="any" 
+                value="${p.costPaid}" 
+                title="Editá el precio pagado (actualiza automáticamente todas tus recetas)"
+                oninput="updatePantryItemCostInline('${p.id}', this.value)" 
+                class="w-24 pl-5 pr-2 py-1 rounded-xl border border-orange-200 text-xs font-black text-slate-900 text-right bg-white focus:ring-2 focus:ring-orange-500"
+              >
+            </div>
+            <button type="button" onclick="editPantryItemFull('${p.id}')" class="text-slate-400 hover:text-kitchenOrange-600 p-1 font-bold text-[11px]" title="Editar nombre o cantidad del paquete">✏️</button>
+            <button type="button" onclick="deletePantryItem('${p.id}')" class="text-slate-300 hover:text-rose-500 p-1" title="Eliminar este insumo">✕</button>
           </div>
         `;
         container.appendChild(row);
       });
+    }
+
+    function updatePantryItemCostInline(itemId, val) {
+      const p = pantry.find(item => item.id === itemId);
+      if (!p) return;
+      const num = parseFloat(val);
+      if (!isNaN(num) && num >= 0) {
+        p.costPaid = num;
+        persistData(true);
+        renderRecipes();
+        if (editingRecipe) {
+          recalcRecipeModalLive();
+        }
+      }
+    }
+
+    function editPantryItemFull(itemId) {
+      const p = pantry.find(item => item.id === itemId);
+      if (!p) return;
+      const newName = prompt('Nombre del insumo:', p.name);
+      if (newName === null) return;
+      if (newName.trim()) p.name = newName.trim();
+
+      const newQty = prompt(`Cantidad que compraste (${p.unit}):`, p.qtyBought);
+      if (newQty !== null && !isNaN(parseFloat(newQty)) && parseFloat(newQty) > 0) {
+        p.qtyBought = parseFloat(newQty);
+      }
+
+      persistData();
+      renderPantryList();
+      renderRecipes();
+      populateDatalists();
+      showToast('Insumo actualizado', '✓');
     }
 
     function saveNewPantryItem(e) {
@@ -1553,25 +1951,9 @@
       persistData();
       renderPantryList();
       renderRecipes();
+      populateDatalists();
       document.getElementById('newPantryItemForm').reset();
       showToast('Insumo guardado en la Despensa', '🥫');
-    }
-
-    function editPantryItemPrice(itemId) {
-      const p = pantry.find(item => item.id === itemId);
-      if (!p) return;
-
-      const newPriceStr = prompt(`Nuevo precio pagado por ${p.name} (${p.qtyBought} ${p.unit}):`, p.costPaid);
-      if (!newPriceStr) return;
-
-      const newPrice = parseFloat(newPriceStr);
-      if (!isNaN(newPrice) && newPrice > 0) {
-        p.costPaid = newPrice;
-        persistData();
-        renderPantryList();
-        renderRecipes();
-        showToast('Precio actualizado en todas tus recetas', '✓');
-      }
     }
 
     function deletePantryItem(itemId) {
@@ -1971,6 +2353,7 @@
     // Inicializador
     window.addEventListener('DOMContentLoaded', () => {
       applySalonBranding();
+      populateDatalists();
       renderRecipes();
       updateMetrics();
       updateArgClock();
