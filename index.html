@@ -487,15 +487,65 @@
           </div>
         </div>
 
-        <!-- RESULTADO FINAL: COSTO UNITARIO Y PRECIO VENTA -->
-        <div class="bg-white p-3 rounded-2xl border border-orange-200 shadow-sm flex items-center justify-between">
-          <div>
-            <span class="text-[10px] uppercase font-bold text-slate-400 block" id="liveUnitCostLabel">Costo Unitario</span>
-            <span class="text-sm font-black text-slate-700" id="liveUnitCostDisplay">$ 0</span>
+        <!-- RESULTADO FINAL: PRECIO DE VENTA Y REDONDEO MANUAL -->
+        <div class="bg-white p-4 rounded-2xl border-2 border-kitchenOrange-500 shadow-md space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-xs font-black text-slate-900 uppercase tracking-wide block">💰 Precio de Venta al Público</span>
+              <span class="text-[11px] text-slate-500 font-medium">Escribí tu precio o redondeá con 1 click</span>
+            </div>
+            <span class="text-xs font-black px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 shadow-sm" id="liveRealMarginBadge">Ganás +50%</span>
           </div>
-          <div class="text-right">
-            <span class="text-[10px] uppercase font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full inline-block mb-0.5">Precio Sugerido</span>
-            <span class="text-lg font-black text-emerald-700 block" id="liveSuggestedPriceDisplay">$ 0</span>
+
+          <!-- Input Principal del Precio de Venta -->
+          <div class="flex items-center gap-2">
+            <div class="relative flex-1">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-xl font-black text-kitchenOrange-600">$</span>
+              <input 
+                type="number" 
+                step="any" 
+                id="recipeSalePriceInput" 
+                placeholder="0"
+                oninput="handleManualSalePriceInput(this.value)"
+                class="w-full pl-9 pr-3 py-2.5 rounded-xl border-2 border-orange-200 font-black text-2xl text-slate-900 bg-orange-50/20 focus:bg-white focus:border-kitchenOrange-600 focus:ring-2 focus:ring-orange-400 focus:outline-none transition-all"
+                title="Precio de venta final al público (podés cambiarlo a lo que quieras)"
+              >
+            </div>
+            <button 
+              type="button" 
+              onclick="resetToSuggestedPrice()" 
+              title="Volver al precio exacto sugerido por la fórmula"
+              class="px-3 py-2.5 rounded-xl border border-orange-200 text-slate-700 hover:text-kitchenOrange-700 hover:bg-orange-50 font-bold text-xs bg-white shadow-sm active:scale-95 transition-all flex flex-col items-center justify-center leading-tight shrink-0"
+            >
+              <span class="text-sm">↺</span>
+              <span class="text-[9px] uppercase font-bold text-slate-500">Sugerido</span>
+            </button>
+          </div>
+
+          <!-- Botones de Redondeo Rápido -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10px] font-bold text-slate-500 uppercase">Redondeo rápido hacia arriba:</span>
+              <span class="text-[10px] text-slate-400 font-semibold" id="liveFormulaNotice">Fórmula: $ 0</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1.5">
+              <button type="button" onclick="roundPriceTo(100)" class="py-2 px-1 bg-slate-50 hover:bg-orange-100 text-slate-800 hover:text-kitchenOrange-950 rounded-xl text-xs font-black border border-slate-200 hover:border-orange-300 active:scale-95 transition-all">a $100</button>
+              <button type="button" onclick="roundPriceTo(500)" class="py-2 px-1 bg-orange-100/70 hover:bg-orange-200 text-kitchenOrange-950 rounded-xl text-xs font-black border border-orange-300 active:scale-95 transition-all" title="Ej: de 7.200 a 7.500">a $500</button>
+              <button type="button" onclick="roundPriceTo(1000)" class="py-2 px-1 bg-slate-50 hover:bg-orange-100 text-slate-800 hover:text-kitchenOrange-950 rounded-xl text-xs font-black border border-slate-200 hover:border-orange-300 active:scale-95 transition-all">a $1.000</button>
+              <button type="button" onclick="roundPricePsychological()" class="py-2 px-1 bg-slate-50 hover:bg-orange-100 text-slate-800 hover:text-kitchenOrange-950 rounded-xl text-xs font-black border border-slate-200 hover:border-orange-300 active:scale-95 transition-all" title="Ej: $ 7.900 o $ 8.900">...900</button>
+            </div>
+          </div>
+
+          <!-- Métricas del Precio Elegido: Costo vs Ganancia Neta -->
+          <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs">
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">
+              <span class="block text-[10px] font-bold text-slate-400 uppercase" id="liveUnitCostLabel">Costo por unidad:</span>
+              <span class="text-sm font-black text-slate-700" id="liveUnitCostDisplay">$ 0</span>
+            </div>
+            <div class="bg-emerald-50 p-2.5 rounded-xl border border-emerald-200 text-right">
+              <span class="block text-[10px] font-bold text-emerald-700 uppercase">Ganancia en bolsillo:</span>
+              <span class="text-sm font-black text-emerald-800" id="liveRealProfitDisplay">+$ 0</span>
+            </div>
           </div>
         </div>
       </div>
@@ -1062,10 +1112,16 @@
       const yieldAmt = (r.yieldAmount && r.yieldAmount > 0) ? r.yieldAmount : 1;
       const unitCost = totalTandaCost / yieldAmt;
 
-      // Margen de ganancia
+      // Margen de ganancia calculado por fórmula
       const margin = (r.marginPercent || 50) / 100;
       const suggestedPrice = unitCost * (1 + margin);
-      const unitProfit = suggestedPrice - unitCost;
+
+      // Precio final (manual si el usuario lo fijó o redondeó, o sugerido)
+      const hasManualPrice = (typeof r.salePrice === 'number' && !isNaN(r.salePrice) && r.salePrice > 0);
+      const finalPrice = hasManualPrice ? r.salePrice : suggestedPrice;
+
+      const unitProfit = finalPrice - unitCost;
+      const realMarginPercent = unitCost > 0 ? Math.round(((finalPrice - unitCost) / unitCost) * 100) : Math.round(margin * 100);
       const tandaProfit = unitProfit * yieldAmt;
 
       return {
@@ -1075,8 +1131,11 @@
         totalTandaCost,
         unitCost,
         suggestedPrice,
+        finalPrice,
         unitProfit,
-        tandaProfit
+        realMarginPercent,
+        tandaProfit,
+        isManualPrice: hasManualPrice
       };
     }
 
@@ -1146,7 +1205,7 @@
             <!-- Precio y Margen -->
             <div class="text-right">
               <span class="text-xs font-black text-emerald-800 bg-emerald-100 border border-emerald-300 px-2.5 py-0.5 rounded-full inline-block">
-                ${formatCurrency(calc.suggestedPrice)}
+                ${formatCurrency(calc.finalPrice)}
               </span>
               <p class="text-[10px] font-bold text-slate-400 mt-1">Costo: ${formatCurrency(calc.unitCost)}</p>
             </div>
@@ -1163,7 +1222,7 @@
               <span class="text-slate-800">${formatCurrency(calc.packagingCost / r.yieldAmount)}</span>
             </div>
             <div>
-              <span class="block text-[9px] uppercase opacity-75">Ganancia (+${r.marginPercent}%)</span>
+              <span class="block text-[9px] uppercase opacity-75">Ganancia (+${calc.realMarginPercent}%)</span>
               <span class="text-emerald-700">+${formatCurrency(calc.unitProfit)}</span>
             </div>
           </div>
@@ -1279,6 +1338,15 @@
       handleSaleTypeChange(false);
       renderRecipeIngredientsList();
       renderRecipePackagingList();
+      // Inicializar precio de venta final en el input
+      const priceInput = document.getElementById('recipeSalePriceInput');
+      if (editingRecipe.salePrice && editingRecipe.salePrice > 0) {
+        priceInput.value = editingRecipe.salePrice;
+      } else {
+        const calc = calculateRecipeCosts(editingRecipe);
+        priceInput.value = Math.round(calc.suggestedPrice);
+      }
+
       switchEditorTab('ingredients');
       recalcRecipeModalLive();
     }
@@ -1505,12 +1573,15 @@
       const container = document.getElementById('recipeIngredientsList');
       container.innerHTML = '';
       const ings = editingRecipe.ingredients || [];
-      document.getElementById('countTabIngredients').textContent = ings.length;
+      const activeCount = ings.filter(i => i.active).length;
+      document.getElementById('countTabIngredients').textContent = activeCount;
 
       if (ings.length === 0) {
         container.innerHTML = `<div class="text-xs text-slate-400 py-4 text-center bg-white/70 rounded-2xl border border-dashed border-orange-200">No hay ingredientes cargados. Usá la barra de arriba para sumar lo que quieras.</div>`;
         return;
       }
+
+      let shownPausedDivider = false;
 
       ings.forEach((ing, idx) => {
         const p = pantry.find(item => item.id === ing.pantryId);
@@ -1521,28 +1592,43 @@
           ? ing.cost
           : (unitCost * (ing.amount || 0));
 
+        // Divisor visual para los ingredientes pausados que pasaron al fondo
+        if (!ing.active && !shownPausedDivider) {
+          shownPausedDivider = true;
+          const divider = document.createElement('div');
+          divider.className = "flex items-center gap-2 pt-2 pb-1 text-[10px] font-black text-slate-400 uppercase tracking-wider";
+          divider.innerHTML = `
+            <span class="h-[1px] bg-slate-200 flex-1"></span>
+            <span class="flex items-center gap-1">⏸️ Pausados al fondo (no suman al costo)</span>
+            <span class="h-[1px] bg-slate-200 flex-1"></span>
+          `;
+          container.appendChild(divider);
+        }
+
         const row = document.createElement('div');
         row.className = `p-2.5 rounded-2xl border transition-all ${
-          ing.active ? 'bg-white border-orange-200 shadow-sm' : 'bg-slate-50 border-slate-200 opacity-60'
+          ing.active 
+            ? 'bg-white border-orange-200 shadow-sm' 
+            : 'bg-slate-100/80 border-dashed border-slate-300 opacity-60'
         }`;
 
         row.innerHTML = `
           <div class="flex items-center justify-between gap-2">
-            <!-- Checkbox Activo / Pausado (Descarta sin borrar) -->
+            <!-- Checkbox Activo / Pausado (Descarta y manda al fondo automáticamente) -->
             <div class="flex items-center gap-2 flex-1 min-w-0">
               <input 
                 type="checkbox" 
                 ${ing.active ? 'checked' : ''} 
                 onchange="toggleRecipeItemActive('ingredients', ${idx}, this.checked)"
                 class="w-4 h-4 rounded text-kitchenOrange-600 focus:ring-orange-500 cursor-pointer shrink-0"
-                title="Pausar / Activar ingrediente en el costo sin borrarlo"
+                title="${ing.active ? 'Pausar este ingrediente (lo manda al fondo y lo resta del costo)' : 'Reactivar este ingrediente (lo sube y suma al costo)'}"
               >
               <input 
                 type="text" 
                 value="${name.replace(/"/g, '&quot;')}" 
                 oninput="updateRecipeItemName('ingredients', ${idx}, this.value)"
                 placeholder="Nombre ingrediente"
-                class="w-full px-2 py-1 rounded-lg border border-transparent hover:border-slate-300 focus:border-orange-500 text-xs font-bold text-slate-800 bg-transparent focus:bg-white truncate"
+                class="w-full px-2 py-1 rounded-lg border border-transparent hover:border-slate-300 focus:border-orange-500 text-xs font-bold ${ing.active ? 'text-slate-800' : 'text-slate-400 line-through'} bg-transparent focus:bg-white truncate"
                 title="Tocá para editar el nombre libremente"
               >
             </div>
@@ -1569,7 +1655,7 @@
                   value="${Math.round(currentCost)}" 
                   oninput="updateRecipeItemCostDirect('ingredients', ${idx}, this.value)"
                   class="w-20 pl-4 pr-1.5 py-1 rounded-lg border border-orange-200 text-xs font-black text-kitchenOrange-950 text-right bg-orange-50/50 focus:bg-white focus:ring-2 focus:ring-orange-500"
-                  title="Costo en $ de este ingrediente (podés cambiarlo directamente)"
+                  title="Costo en $ de este ingrediente"
                 >
               </div>
 
@@ -1590,12 +1676,15 @@
       const container = document.getElementById('recipePackagingList');
       container.innerHTML = '';
       const packs = editingRecipe.packaging || [];
-      document.getElementById('countTabPackaging').textContent = packs.length;
+      const activeCount = packs.filter(p => p.active).length;
+      document.getElementById('countTabPackaging').textContent = activeCount;
 
       if (packs.length === 0) {
         container.innerHTML = `<div class="text-xs text-slate-400 py-4 text-center bg-white/70 rounded-2xl border border-dashed border-orange-200">No hay packaging cargado. Usá la barra de carga arriba para sumar cajas o bolsas.</div>`;
         return;
       }
+
+      let shownPausedDivider = false;
 
       packs.forEach((pack, idx) => {
         const p = pantry.find(item => item.id === pack.pantryId);
@@ -1606,28 +1695,42 @@
           ? pack.cost
           : (unitCost * (pack.amount || 0));
 
+        if (!pack.active && !shownPausedDivider) {
+          shownPausedDivider = true;
+          const divider = document.createElement('div');
+          divider.className = "flex items-center gap-2 pt-2 pb-1 text-[10px] font-black text-slate-400 uppercase tracking-wider";
+          divider.innerHTML = `
+            <span class="h-[1px] bg-slate-200 flex-1"></span>
+            <span class="flex items-center gap-1">⏸️ Pausados al fondo (no suman al costo)</span>
+            <span class="h-[1px] bg-slate-200 flex-1"></span>
+          `;
+          container.appendChild(divider);
+        }
+
         const row = document.createElement('div');
         row.className = `p-2.5 rounded-2xl border transition-all ${
-          pack.active ? 'bg-white border-orange-200 shadow-sm' : 'bg-slate-50 border-slate-200 opacity-60'
+          pack.active 
+            ? 'bg-white border-orange-200 shadow-sm' 
+            : 'bg-slate-100/80 border-dashed border-slate-300 opacity-60'
         }`;
 
         row.innerHTML = `
           <div class="flex items-center justify-between gap-2">
-            <!-- Checkbox Activo / Pausado -->
+            <!-- Checkbox Activo / Pausado (Descarta y manda al fondo automáticamente) -->
             <div class="flex items-center gap-2 flex-1 min-w-0">
               <input 
                 type="checkbox" 
                 ${pack.active ? 'checked' : ''} 
                 onchange="toggleRecipeItemActive('packaging', ${idx}, this.checked)"
                 class="w-4 h-4 rounded text-kitchenOrange-600 focus:ring-orange-500 cursor-pointer shrink-0"
-                title="Pausar / Activar packaging en el costo sin borrarlo"
+                title="${pack.active ? 'Pausar este packaging (lo manda al fondo)' : 'Reactivar este packaging'}"
               >
               <input 
                 type="text" 
                 value="${name.replace(/"/g, '&quot;')}" 
                 oninput="updateRecipeItemName('packaging', ${idx}, this.value)"
                 placeholder="Nombre packaging"
-                class="w-full px-2 py-1 rounded-lg border border-transparent hover:border-slate-300 focus:border-orange-500 text-xs font-bold text-slate-800 bg-transparent focus:bg-white truncate"
+                class="w-full px-2 py-1 rounded-lg border border-transparent hover:border-slate-300 focus:border-orange-500 text-xs font-bold ${pack.active ? 'text-slate-800' : 'text-slate-400 line-through'} bg-transparent focus:bg-white truncate"
                 title="Tocá para editar el nombre libremente"
               >
             </div>
@@ -1654,7 +1757,7 @@
                   value="${Math.round(currentCost)}" 
                   oninput="updateRecipeItemCostDirect('packaging', ${idx}, this.value)"
                   class="w-20 pl-4 pr-1.5 py-1 rounded-lg border border-orange-200 text-xs font-black text-kitchenOrange-950 text-right bg-orange-50/50 focus:bg-white focus:ring-2 focus:ring-orange-500"
-                  title="Costo en $ de este packaging (podés cambiarlo directamente)"
+                  title="Costo en $ de este packaging"
                 >
               </div>
 
@@ -1672,8 +1775,28 @@
     }
 
     function toggleRecipeItemActive(type, index, active) {
-      if (!editingRecipe) return;
-      editingRecipe[type][index].active = active;
+      if (!editingRecipe || !editingRecipe[type]) return;
+      const list = editingRecipe[type];
+      if (!list[index]) return;
+
+      list[index].active = active;
+      const item = list.splice(index, 1)[0];
+
+      if (active) {
+        // Al reactivarlo, ponerlo al final del grupo de los activos (arriba de los pausados)
+        const lastActiveIdx = list.reduce((last, it, i) => it.active ? i : last, -1);
+        if (lastActiveIdx >= 0) {
+          list.splice(lastActiveIdx + 1, 0, item);
+        } else {
+          list.unshift(item);
+        }
+        showToast(`Reactivado: ${item.name || 'Insumo'}`, '✓');
+      } else {
+        // Al pausarlo, automáticamente pasa al fondo de la lista
+        list.push(item);
+        showToast(`Pausado al fondo: ${item.name || 'Insumo'}`, '⏸️');
+      }
+
       if (type === 'ingredients') renderRecipeIngredientsList();
       else renderRecipePackagingList();
       recalcRecipeModalLive();
@@ -1723,6 +1846,7 @@
     function setRecipeMargin(margin) {
       if (!editingRecipe) return;
       editingRecipe.marginPercent = margin;
+      editingRecipe.salePrice = null; // Al tocar un margen predefinido, restablecer al cálculo del margen
       document.querySelectorAll('#marginPresetButtons .margin-btn').forEach(btn => {
         const m = parseInt(btn.getAttribute('data-margin'), 10);
         if (m === margin) {
@@ -1732,7 +1856,60 @@
         }
       });
       document.getElementById('liveMarginLabel').textContent = `${margin}%`;
+      const calc = calculateRecipeCosts(editingRecipe);
+      document.getElementById('recipeSalePriceInput').value = Math.round(calc.suggestedPrice);
       recalcRecipeModalLive();
+    }
+
+    function handleManualSalePriceInput(val) {
+      if (!editingRecipe) return;
+      const num = parseFloat(val);
+      if (!isNaN(num) && num > 0) {
+        editingRecipe.salePrice = num;
+      } else {
+        editingRecipe.salePrice = null;
+      }
+      recalcRecipeModalLive();
+    }
+
+    function resetToSuggestedPrice() {
+      if (!editingRecipe) return;
+      editingRecipe.salePrice = null;
+      const calc = calculateRecipeCosts(editingRecipe);
+      document.getElementById('recipeSalePriceInput').value = Math.round(calc.suggestedPrice);
+      recalcRecipeModalLive();
+      showToast('Precio restablecido al sugerido por costo', '↺');
+    }
+
+    function roundPriceTo(step) {
+      if (!editingRecipe) return;
+      const calc = calculateRecipeCosts(editingRecipe);
+      const currentVal = parseFloat(document.getElementById('recipeSalePriceInput').value) || calc.suggestedPrice;
+      
+      let rounded = Math.ceil(currentVal / step) * step;
+      if (rounded === currentVal && step >= 500) {
+        rounded = currentVal + step;
+      }
+      editingRecipe.salePrice = rounded;
+      document.getElementById('recipeSalePriceInput').value = rounded;
+      recalcRecipeModalLive();
+      showToast(`Precio redondeado a ${formatCurrency(rounded)}`, '🎯');
+    }
+
+    function roundPricePsychological() {
+      if (!editingRecipe) return;
+      const calc = calculateRecipeCosts(editingRecipe);
+      const currentVal = parseFloat(document.getElementById('recipeSalePriceInput').value) || calc.suggestedPrice;
+      
+      const thousands = Math.floor(currentVal / 1000);
+      let rounded = thousands * 1000 + 900;
+      if (rounded <= currentVal) {
+        rounded = (thousands + 1) * 1000 + 900;
+      }
+      editingRecipe.salePrice = rounded;
+      document.getElementById('recipeSalePriceInput').value = rounded;
+      recalcRecipeModalLive();
+      showToast(`Precio ajustado a ${formatCurrency(rounded)}`, '🏷️');
     }
 
     function recalcRecipeModalLive() {
@@ -1754,13 +1931,13 @@
       const unitCostLabel = document.getElementById('liveUnitCostLabel');
       if (editingRecipe.saleType === 'unit') {
         unitSpan.textContent = 'unidades';
-        unitCostLabel.textContent = 'Costo por Unidad';
+        unitCostLabel.textContent = 'Costo por Unidad:';
       } else if (editingRecipe.saleType === 'kg') {
-        unitSpan.textContent = 'kg totales';
-        unitCostLabel.textContent = 'Costo por Kilo';
+        unitSpan.textContent = 'kilos';
+        unitCostLabel.textContent = 'Costo por Kilo:';
       } else {
         unitSpan.textContent = 'docenas';
-        unitCostLabel.textContent = 'Costo por Docena';
+        unitCostLabel.textContent = 'Costo por Docena:';
       }
 
       // Calcular
@@ -1771,7 +1948,17 @@
       document.getElementById('livePackagingCost').textContent = formatCurrency(calc.packagingCost);
       document.getElementById('liveLaborCost').textContent = formatCurrency(calc.laborCost);
       document.getElementById('liveUnitCostDisplay').textContent = formatCurrency(calc.unitCost);
-      document.getElementById('liveSuggestedPriceDisplay').textContent = formatCurrency(calc.suggestedPrice);
+
+      const priceInput = document.getElementById('recipeSalePriceInput');
+      if (editingRecipe.salePrice && editingRecipe.salePrice > 0) {
+        priceInput.value = editingRecipe.salePrice;
+      } else if (!priceInput.value || document.activeElement !== priceInput) {
+        priceInput.value = Math.round(calc.suggestedPrice);
+      }
+
+      document.getElementById('liveFormulaNotice').textContent = `Fórmula sugerida: ${formatCurrency(calc.suggestedPrice)}`;
+      document.getElementById('liveRealMarginBadge').textContent = `Ganás +${calc.realMarginPercent}%`;
+      document.getElementById('liveRealProfitDisplay').textContent = `+${formatCurrency(calc.unitProfit)}`;
     }
 
     function saveRecipeModal() {
@@ -1780,6 +1967,13 @@
       if (!editingRecipe.name) {
         alert('Por favor poné un nombre a la receta (ej: Pizza Muzzarella).');
         return;
+      }
+
+      const salePriceVal = parseFloat(document.getElementById('recipeSalePriceInput').value);
+      if (!isNaN(salePriceVal) && salePriceVal > 0) {
+        editingRecipe.salePrice = salePriceVal;
+      } else {
+        editingRecipe.salePrice = null;
       }
 
       const idx = recipes.findIndex(item => item.id === editingRecipe.id);
@@ -1832,10 +2026,16 @@
       if (r.saleType === 'dozen') saleTypeText = 'la docena';
 
       const salon = settings.salonName || 'Mi Cocina';
-      let text = `¡Hola! Te comparto la información y precio de *${r.name}* en *${salon}*:\n\n` +
-                 `• Presentación: Venta ${saleTypeText}\n` +
-                 `• Precio: *${formatCurrency(calc.suggestedPrice)}*\n\n` +
-                 `Elaboración casera con insumos de primera calidad, lista para disfrutar o enviar al horno.\n` +
+      let text = `¡Hola! Te comparto la información y precio de *${r.name}* en *${salon}*:
+
+` +
+                 `• Presentación: Venta ${saleTypeText}
+` +
+                 `• Precio: *${formatCurrency(calc.finalPrice)}*
+
+` +
+                 `Elaboración casera con insumos de primera calidad, lista para disfrutar o enviar al horno.
+` +
                  `¿Te reservo para qué día y horario? ¡Muchas gracias!`;
 
       navigator.clipboard.writeText(text).then(() => {
@@ -2327,7 +2527,7 @@
           Math.round(calc.totalTandaCost),
           Math.round(calc.unitCost),
           `${r.marginPercent || 50}%`,
-          Math.round(calc.suggestedPrice),
+          Math.round(calc.finalPrice),
           Math.round(calc.unitProfit)
         ];
         csvContent += row.join(',') + '\n';
